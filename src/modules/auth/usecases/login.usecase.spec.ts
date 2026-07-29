@@ -53,8 +53,28 @@ describe('LoginUseCase', () => {
     });
   });
 
-  it('returns a token pair on valid credentials', async () => {
-    authRepo.findUserByEmail.mockResolvedValue({ id: 'u1', email: 'u@spendly.app', passwordHash: 'hashed' } as any);
+  it('throws EMAIL_NOT_VERIFIED when the account has not completed OTP verification', async () => {
+    authRepo.findUserByEmail.mockResolvedValue({
+      id: 'u1',
+      passwordHash: 'hashed',
+      emailVerifiedAt: null,
+    } as any);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+    await expect(useCase.execute({ email: 'u@spendly.app', password: 'Passw0rd1' })).rejects.toMatchObject({
+      code: 'EMAIL_NOT_VERIFIED',
+      status: HttpStatus.FORBIDDEN,
+    });
+    expect(authRepo.createRefreshToken).not.toHaveBeenCalled();
+  });
+
+  it('returns a token pair on valid, verified credentials', async () => {
+    authRepo.findUserByEmail.mockResolvedValue({
+      id: 'u1',
+      email: 'u@spendly.app',
+      passwordHash: 'hashed',
+      emailVerifiedAt: new Date('2026-01-01'),
+    } as any);
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
     const result = await useCase.execute({ email: 'u@spendly.app', password: 'Passw0rd1' });

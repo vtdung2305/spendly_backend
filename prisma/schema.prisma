@@ -48,6 +48,7 @@ model User {
   language             Language     @default(VI)
   currency             String       @default("VND")
   notificationsEnabled Boolean      @default(true) @map("notifications_enabled")
+  emailVerifiedAt      DateTime?    @map("email_verified_at")
   createdAt            DateTime     @default(now()) @map("created_at")
   updatedAt            DateTime     @updatedAt @map("updated_at")
   deletedAt            DateTime?    @map("deleted_at")
@@ -59,6 +60,7 @@ model User {
   refreshTokens RefreshToken[]
   uploadedFiles UploadedFile[]
   passwordResetTokens PasswordResetToken[]
+  emailOtps     EmailOtp[]
 
   @@index([deletedAt], map: "idx_users_soft_delete")
   @@map("users")
@@ -91,6 +93,21 @@ model PasswordResetToken {
 
   @@index([userId], map: "idx_password_reset_tokens_user_id")
   @@map("password_reset_tokens")
+}
+
+model EmailOtp {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  codeHash  String    @map("code_hash")
+  attempts  Int       @default(0)
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "idx_email_otps_user_id")
+  @@map("email_otps")
 }
 
 model Category {

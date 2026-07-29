@@ -8,6 +8,8 @@ import { OAuthLoginDto } from './dto/oauth-login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { ResendOtpDto } from './dto/resend-otp.dto';
 import { RegisterUseCase } from './usecases/register.usecase';
 import { LoginUseCase } from './usecases/login.usecase';
 import { OAuthLoginUseCase } from './usecases/oauth-login.usecase';
@@ -15,6 +17,8 @@ import { RefreshTokensUseCase } from './usecases/refresh-tokens.usecase';
 import { LogoutUseCase } from './usecases/logout.usecase';
 import { ForgotPasswordUseCase } from './usecases/forgot-password.usecase';
 import { ResetPasswordUseCase } from './usecases/reset-password.usecase';
+import { VerifyOtpUseCase } from './usecases/verify-otp.usecase';
+import { ResendOtpUseCase } from './usecases/resend-otp.usecase';
 
 @ApiTags('Auth')
 @Public()
@@ -28,14 +32,34 @@ export class AuthController {
     private readonly logoutUseCase: LogoutUseCase,
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
+    private readonly verifyOtpUseCase: VerifyOtpUseCase,
+    private readonly resendOtpUseCase: ResendOtpUseCase,
   ) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Register a new account with email/password' })
-  @ApiResponse({ status: 201 })
-  @ApiResponse({ status: 409, description: 'Email already registered' })
+  @ApiOperation({ summary: 'Register a new account with email/password — sends an OTP to verify the email, does not return a session yet' })
+  @ApiResponse({ status: 201, description: 'OTP sent; call /verify-otp to obtain a session' })
+  @ApiResponse({ status: 409, description: 'Email already registered and verified' })
   async register(@Body() dto: RegisterDto) {
     return this.registerUseCase.execute(dto);
+  }
+
+  @Post('verify-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify the 6-digit email OTP from registration and obtain a session' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, description: 'OTP_INVALID_OR_EXPIRED | OTP_TOO_MANY_ATTEMPTS' })
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.verifyOtpUseCase.execute(dto);
+  }
+
+  @Post('resend-otp')
+  @Throttle({ default: { limit: 3, ttl: 600_000 } })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Resend a fresh email OTP (invalidates the previous one)' })
+  @ApiResponse({ status: 204 })
+  async resendOtp(@Body() dto: ResendOtpDto) {
+    await this.resendOtpUseCase.execute(dto);
   }
 
   @Post('login')
@@ -44,6 +68,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Login with email/password' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @ApiResponse({ status: 403, description: 'EMAIL_NOT_VERIFIED — redirect the client to the OTP screen' })
   async login(@Body() dto: LoginDto) {
     return this.loginUseCase.execute(dto);
   }

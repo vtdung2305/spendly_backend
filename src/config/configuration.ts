@@ -13,6 +13,10 @@ export default () => ({
     accessExpiry: process.env.JWT_ACCESS_EXPIRY ?? '15m',
     refreshExpiry: process.env.JWT_REFRESH_EXPIRY ?? '7d',
   },
+  otp: {
+    expiryMinutes: parseInt(process.env.OTP_EXPIRY_MINUTES ?? '5', 10),
+    maxAttempts: parseInt(process.env.OTP_MAX_ATTEMPTS ?? '5', 10),
+  },
   oauth: {
     googleClientId: process.env.GOOGLE_CLIENT_ID,
     facebookAppId: process.env.FACEBOOK_APP_ID,

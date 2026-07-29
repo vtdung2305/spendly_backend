@@ -1,50 +1,65 @@
-import { HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { AuthProvider } from '@prisma/client';
-import { AppException } from '../../../common/exceptions/app.exception';
 import { RegisterUseCase } from './register.usecase';
 import { AuthRepository } from '../repositories/auth.repository';
-import { TokenService } from '../services/token.service';
+import { EmailOtpService } from '../services/email-otp.service';
 
 jest.mock('bcrypt');
 
 describe('RegisterUseCase', () => {
   let useCase: RegisterUseCase;
   let authRepo: jest.Mocked<AuthRepository>;
-  let tokenService: jest.Mocked<TokenService>;
+  let emailOtpService: jest.Mocked<EmailOtpService>;
 
   beforeEach(() => {
     authRepo = {
       findUserByEmail: jest.fn(),
       createUser: jest.fn(),
-      createRefreshToken: jest.fn(),
     } as any;
 
-    tokenService = {
-      signAccessToken: jest.fn().mockReturnValue('access-token'),
-      generateRefreshToken: jest
-        .fn()
-        .mockReturnValue({ token: 'refresh-token', hash: 'hash', expiresAt: new Date('2026-08-05') }),
+    emailOtpService = {
+      issue: jest.fn(),
     } as any;
 
     (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-password');
 
-    useCase = new RegisterUseCase(authRepo, tokenService);
+    useCase = new RegisterUseCase(authRepo, emailOtpService);
   });
 
-  it('throws EMAIL_ALREADY_EXISTS when the email is already registered', async () => {
-    authRepo.findUserByEmail.mockResolvedValue({ id: 'existing-user' } as any);
+  it('throws EMAIL_ALREADY_EXISTS when the email is already registered and verified', async () => {
+    authRepo.findUserByEmail.mockResolvedValue({ id: 'existing-user', emailVerifiedAt: new Date() } as any);
 
     await expect(
       useCase.execute({ email: 'taken@spendly.app', password: 'Passw0rd1', firstName: 'A', lastName: 'B' }),
-    ).rejects.toMatchObject({ code: 'EMAIL_ALREADY_EXISTS', status: HttpStatus.CONFLICT });
+    ).rejects.toMatchObject({ code: 'EMAIL_ALREADY_EXISTS' });
 
     expect(authRepo.createUser).not.toHaveBeenCalled();
+    expect(emailOtpService.issue).not.toHaveBeenCalled();
   });
 
-  it('creates the user, issues a token pair, and persists the refresh token on success', async () => {
+  it('re-issues an OTP instead of erroring when retrying with an unverified email', async () => {
+    authRepo.findUserByEmail.mockResolvedValue({
+      id: 'existing-user',
+      email: 'pending@spendly.app',
+      firstName: 'Minh',
+      emailVerifiedAt: null,
+    } as any);
+
+    const result = await useCase.execute({
+      email: 'pending@spendly.app',
+      password: 'Passw0rd1',
+      firstName: 'A',
+      lastName: 'B',
+    });
+
+    expect(authRepo.createUser).not.toHaveBeenCalled();
+    expect(emailOtpService.issue).toHaveBeenCalledWith('existing-user', 'pending@spendly.app', 'Minh');
+    expect(result).toEqual({ userId: 'existing-user', email: 'pending@spendly.app', otpRequired: true });
+  });
+
+  it('creates the user and issues an OTP on a fresh registration', async () => {
     authRepo.findUserByEmail.mockResolvedValue(null);
-    authRepo.createUser.mockResolvedValue({ id: 'user-1', email: 'new@spendly.app' } as any);
+    authRepo.createUser.mockResolvedValue({ id: 'user-1', email: 'new@spendly.app', firstName: 'Minh' } as any);
 
     const result = await useCase.execute({
       email: 'new@spendly.app',
@@ -57,22 +72,7 @@ describe('RegisterUseCase', () => {
     expect(authRepo.createUser).toHaveBeenCalledWith(
       expect.objectContaining({ email: 'new@spendly.app', provider: AuthProvider.EMAIL, passwordHash: 'hashed-password' }),
     );
-    expect(authRepo.createRefreshToken).toHaveBeenCalledWith('user-1', 'hash', expect.any(Date));
-    expect(result).toEqual({
-      userId: 'user-1',
-      accessToken: 'access-token',
-      refreshToken: 'refresh-token',
-      refreshTokenExpiresAt: new Date('2026-08-05'),
-    });
-  });
-
-  it('rethrows AppException instances as-is (sanity check on error shape)', async () => {
-    authRepo.findUserByEmail.mockResolvedValue({ id: 'x' } as any);
-    try {
-      await useCase.execute({ email: 'a@b.com', password: 'Passw0rd1', firstName: 'A', lastName: 'B' });
-      fail('expected to throw');
-    } catch (e) {
-      expect(e).toBeInstanceOf(AppException);
-    }
+    expect(emailOtpService.issue).toHaveBeenCalledWith('user-1', 'new@spendly.app', 'Minh');
+    expect(result).toEqual({ userId: 'user-1', email: 'new@spendly.app', otpRequired: true });
   });
 });

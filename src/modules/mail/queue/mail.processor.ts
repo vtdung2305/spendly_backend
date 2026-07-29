@@ -4,7 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { Job } from 'bullmq';
 import { MailerService } from '../services/mailer.service';
 import { passwordResetTemplate } from '../templates/password-reset.template';
-import { MAIL_QUEUE, MailJob, PasswordResetJobData } from './mail-queue.constants';
+import { emailOtpTemplate } from '../templates/email-otp.template';
+import { MAIL_QUEUE, MailJob, PasswordResetJobData, EmailOtpJobData } from './mail-queue.constants';
 
 @Processor(MAIL_QUEUE)
 export class MailProcessor extends WorkerHost {
@@ -17,15 +18,26 @@ export class MailProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job<PasswordResetJobData>): Promise<void> {
+  async process(job: Job<PasswordResetJobData | EmailOtpJobData>): Promise<void> {
     switch (job.name) {
       case MailJob.PASSWORD_RESET: {
+        const data = job.data as PasswordResetJobData;
         const resetBaseUrl = this.config.get<string>('mail.resetPasswordUrl')!;
-        const resetLink = `${resetBaseUrl}?token=${encodeURIComponent(job.data.token)}`;
+        const resetLink = `${resetBaseUrl}?token=${encodeURIComponent(data.token)}`;
         await this.mailer.send({
-          to: job.data.email,
+          to: data.email,
           subject: 'Đặt lại mật khẩu Spendly',
-          html: passwordResetTemplate(job.data.firstName, resetLink),
+          html: passwordResetTemplate(data.firstName, resetLink),
+        });
+        return;
+      }
+      case MailJob.EMAIL_OTP: {
+        const data = job.data as EmailOtpJobData;
+        const expiryMinutes = this.config.get<number>('otp.expiryMinutes')!;
+        await this.mailer.send({
+          to: data.email,
+          subject: 'Mã xác thực Spendly',
+          html: emailOtpTemplate(data.firstName, data.code, expiryMinutes),
         });
         return;
       }

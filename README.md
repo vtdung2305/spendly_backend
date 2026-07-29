@@ -26,7 +26,7 @@ as specified.
 
 | Module | Responsibility |
 |---|---|
-| `auth` | Register, login, Google/Facebook OAuth, refresh token rotation, logout, forgot/reset password |
+| `auth` | Register + email OTP verification, login, Google/Facebook OAuth, refresh token rotation, logout, forgot/reset password |
 | `users` | Current user profile + preferences (theme/language/currency/notifications) |
 | `files` | Avatar upload to MinIO |
 | `categories` | Expense/income category CRUD; deleting a category reassigns its transactions to "Khác" |
@@ -72,14 +72,184 @@ npm run prisma:seed
 npm run start:dev
 ```
 
-## Production
+## Production (Docker)
+
+### 1. Prepare the server
+
+Docker + Docker Compose v2 installed, repo cloned, DNS/reverse proxy (nginx, Caddy, Traefik...)
+in front of port 3000 for TLS — `docker-compose.prod.yml` does not terminate TLS itself.
+
+### 2. Create the production `.env`
+
+Copy `.env.example` to `.env` on the server and replace every value — **do not reuse dev
+secrets**. `docker-compose.prod.yml` additionally needs these (not in `.env.example`,
+since they're only consumed by the compose file, not the app):
 
 ```bash
-docker compose -f docker-compose.prod.yml up --build -d
+# appended to .env, or exported in the shell/CI before `docker compose up`
+POSTGRES_DB=spendly_prod
+POSTGRES_USER=spendly
+POSTGRES_PASSWORD=<strong-random-password>
+REDIS_PASSWORD=<strong-random-password>
+MINIO_ROOT_USER=<strong-random-user>
+MINIO_ROOT_PASSWORD=<strong-random-password>
 ```
 
-Requires `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `REDIS_PASSWORD`,
-`MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD` plus the usual `.env` vars in the environment.
+Then make sure the app-facing vars in `.env` point at those same values and at the
+service names from `docker-compose.prod.yml` (`db`, `redis`, `minio` — not `localhost`):
+
+```bash
+DATABASE_URL=postgresql://spendly:<POSTGRES_PASSWORD>@db:5432/spendly_prod?schema=public&connection_limit=10
+REDIS_URL=redis://:<REDIS_PASSWORD>@redis:6379
+MINIO_ENDPOINT=minio
+MINIO_ACCESS_KEY=<MINIO_ROOT_USER>
+MINIO_SECRET_KEY=<MINIO_ROOT_PASSWORD>
+# Public URL your reverse proxy exposes MinIO under (avatars must be reachable by the app),
+# e.g. https://cdn.yourdomain.com — docker-compose.prod.yml does not publish MinIO's port,
+# so put a reverse-proxied domain (or a real S3/CDN) in front of it for this to resolve.
+MINIO_PUBLIC_URL=https://cdn.yourdomain.com
+JWT_SECRET=<32+ char random secret, different from dev>
+JWT_REFRESH_SECRET=<32+ char random secret, different from dev>
+ALLOWED_ORIGINS=https://app.yourdomain.com
+SMTP_HOST=<real SMTP provider>
+SMTP_USER=<real SMTP user>
+SMTP_PASS=<real SMTP password>
+GOOGLE_CLIENT_ID=<real prod OAuth client id>
+FACEBOOK_APP_ID=<real prod app id>
+FACEBOOK_APP_SECRET=<real prod app secret>
+```
+
+### 3. Build and start
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env up --build -d
+```
+
+This builds the multi-stage production `Dockerfile` (non-root user, `npm prune --production`,
+`dumb-init` entrypoint), runs 2 replicas of `api`, and starts `db`/`redis`/`minio` — none of
+which publish ports to the host in this file, only `api:3000` does.
+
+### 4. Run migrations (not `migrate dev`)
+
+```bash
+docker compose -f docker-compose.prod.yml exec api npx prisma migrate deploy
+```
+
+`migrate deploy` applies committed migrations as-is and never prompts or generates new
+ones — that's the only migration command that belongs in production. **Do not run
+`npm run prisma:seed` in production** — it creates a demo account with a published,
+known password (`demo@spendly.app` / `Passw0rd!`).
+
+### 5. Verify
+
+```bash
+curl https://api.yourdomain.com/health   # { "status": "ok", "info": { "database": { "status": "up" } } }
+docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml logs -f api
+```
+
+### 6. Redeploy on a new release
+
+```bash
+git pull
+docker compose -f docker-compose.prod.yml --env-file .env up --build -d
+docker compose -f docker-compose.prod.yml exec api npx prisma migrate deploy
+```
+
+## Production (without Docker)
+
+Same app, run as a plain Node process on the host. You still need Postgres 16, Redis 7,
+and an S3-compatible store (self-installed MinIO, or a real S3/GCS bucket) reachable from
+the server — install them natively or point `.env` at managed services (RDS, ElastiCache, S3...).
+
+### 1. Install Node.js 20 and clone the repo
+
+```bash
+# e.g. via nvm
+nvm install 20 && nvm use 20
+git clone <repo-url> spendly-backend && cd spendly-backend
+```
+
+### 2. Configure `.env`
+
+Same as the Docker guide above, except point `DATABASE_URL`/`REDIS_URL`/`MINIO_ENDPOINT`
+at wherever those services actually run (`localhost`, an internal hostname, or a managed
+service endpoint) instead of the Docker service names `db`/`redis`/`minio`.
+
+### 3. Install, generate, and build
+
+```bash
+npm ci                    # full install, including devDependencies — needed to build
+npx prisma generate
+npm run build              # emits dist/
+npm prune --omit=dev       # drop devDependencies now that dist/ is built
+```
+
+### 4. Run migrations
+
+```bash
+npx prisma migrate deploy   # never `migrate dev` in production
+# do NOT run `npm run prisma:seed` — it creates a demo account with a published password
+```
+
+### 5. Start the process under a process manager
+
+A bare `node dist/src/main.js` dies on crash and doesn't restart on reboot — run it under
+`pm2` (or a systemd unit) instead:
+
+```bash
+npm i -g pm2
+pm2 start dist/src/main.js --name spendly-api -i max --update-env
+pm2 save
+pm2 startup   # prints (and can install) a systemd unit so pm2 itself survives a reboot
+```
+
+`-i max` runs one instance per CPU core behind pm2's built-in load balancer (the app is
+stateless — auth/session state lives in Postgres/Redis, not in-process — so this is safe).
+
+Equivalent systemd unit if you'd rather not use pm2 (`/etc/systemd/system/spendly-api.service`):
+
+```ini
+[Unit]
+Description=Spendly API
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/spendly-backend
+EnvironmentFile=/opt/spendly-backend/.env
+ExecStart=/usr/bin/node dist/src/main.js
+Restart=always
+RestartSec=5
+User=spendly
+
+[Install]
+WantedBy=multi-user.target
+```
+```bash
+sudo systemctl enable --now spendly-api
+```
+
+### 6. Reverse proxy + TLS
+
+Put nginx/Caddy in front of port 3000 for TLS termination — the app itself only speaks
+plain HTTP. Point your S3/MinIO's public URL (`MINIO_PUBLIC_URL`) at whatever serves
+avatar files publicly over HTTPS.
+
+### 7. Verify
+
+```bash
+curl http://localhost:3000/health
+pm2 logs spendly-api        # or: journalctl -u spendly-api -f
+```
+
+### 8. Redeploy on a new release
+
+```bash
+git pull
+npm ci && npx prisma generate && npm run build && npm prune --omit=dev
+npx prisma migrate deploy
+pm2 reload spendly-api      # zero-downtime reload; use `systemctl restart spendly-api` for the unit variant
+```
 
 ## OAuth setup notes
 
@@ -102,6 +272,40 @@ Failed sends retry 3x with exponential backoff before landing in the dead-letter
 For local dev without a real inbox: create a free throwaway inbox at
 https://ethereal.email and put its host/user/pass into `.env` — every reset email
 becomes viewable there instantly.
+
+## Email OTP verification (register)
+
+Matches the "Verify OTP" screen added to `design_handoff_finance_app`. Email/password
+registration no longer returns a session directly:
+
+```
+POST /auth/register  → { userId, email, otpRequired: true }   (no accessToken yet)
+                          — sends a 6-digit code via the emails queue, same delivery
+                            path as password reset (see MailProcessor / EMAIL_OTP job)
+POST /auth/verify-otp → { userId, accessToken, refreshToken, refreshTokenExpiresAt }
+POST /auth/resend-otp → 204, always — silent no-op if the email doesn't exist or is
+                          already verified, to avoid leaking account state
+```
+
+Rules:
+- Code expires after `OTP_EXPIRY_MINUTES` (default 5) and locks out after `OTP_MAX_ATTEMPTS`
+  wrong tries (default 5) — the client must call `resend-otp` after that.
+- Issuing a new OTP (register retry or resend) invalidates any previously issued one; only
+  the latest is ever valid.
+- `POST /auth/login` now rejects with `403 EMAIL_NOT_VERIFIED` if the account hasn't
+  completed OTP verification yet — the client should redirect to the OTP screen (re-prompt
+  `resend-otp` if the original code already expired).
+- Google/Facebook accounts skip this entirely — `emailVerifiedAt` is set at creation since
+  the provider already verified the email.
+- Retrying `register` with the same, still-unverified email re-sends a fresh OTP instead of
+  erroring (covers the abandoned-registration case); registering an already-**verified**
+  email still returns `409 EMAIL_ALREADY_EXISTS`.
+
+This adds two Prisma models/fields — run a migration after pulling this change:
+```bash
+npx prisma migrate dev --name add_email_otp_verification   # local
+# or, once merged: docker compose exec api npx prisma migrate deploy
+```
 
 ## Testing
 

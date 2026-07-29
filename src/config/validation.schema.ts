@@ -12,6 +12,9 @@ export const validationSchema = Joi.object({
   JWT_ACCESS_EXPIRY: Joi.string().default('15m'),
   JWT_REFRESH_EXPIRY: Joi.string().default('7d'),
 
+  OTP_EXPIRY_MINUTES: Joi.number().default(5),
+  OTP_MAX_ATTEMPTS: Joi.number().default(5),
+
   GOOGLE_CLIENT_ID: Joi.string().required(),
   FACEBOOK_APP_ID: Joi.string().required(),
   FACEBOOK_APP_SECRET: Joi.string().required(),

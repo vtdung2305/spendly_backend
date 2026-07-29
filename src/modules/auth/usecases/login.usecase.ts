@@ -23,6 +23,14 @@ export class LoginUseCase {
       throw new AppException('INVALID_CREDENTIALS', 'Email hoặc mật khẩu không đúng', HttpStatus.UNAUTHORIZED);
     }
 
+    if (!user.emailVerifiedAt) {
+      throw new AppException(
+        'EMAIL_NOT_VERIFIED',
+        'Email chưa được xác thực. Vui lòng nhập mã OTP đã gửi tới email của bạn',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const accessToken = this.tokenService.signAccessToken(user);
     const { token: refreshToken, hash, expiresAt } = this.tokenService.generateRefreshToken();
     await this.authRepo.createRefreshToken(user.id, hash, expiresAt);

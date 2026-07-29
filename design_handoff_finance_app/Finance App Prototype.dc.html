@@ -257,11 +257,50 @@
                 </div>
               </div>
 
-              <button onclick="{{ goDashboard }}" style="{{ btnPrimary }};margin-top:26px;">Đăng ký</button>
+              <button onclick="{{ goOtp }}" style="{{ btnPrimary }};margin-top:26px;">Đăng ký</button>
 
               <div style="flex:1;"></div>
               <div style="text-align:center;font-size:14px;color:{{ c.textSec }};">
                 Đã có tài khoản? <a onclick="{{ goLogin }}" style="color:{{ c.primary }};font-weight:700;text-decoration:none;cursor:pointer;">Đăng nhập</a>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- OTP VERIFICATION -->
+          <sc-if value="{{ isOtp }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:844px;background:{{ c.bg }};padding:90px 18px 36px;display:flex;flex-direction:column;">
+              <div style="width:56px;height:56px;border-radius:16px;background:{{ c.primary }};display:flex;align-items:center;justify-content:center;margin-bottom:24px;align-self:center;">
+                <span class="msr" style="font-size:30px;color:#fff;">mark_email_read</span>
+              </div>
+              <div style="font-size:26px;font-weight:800;color:{{ c.text }};text-align:center;">Xác thực email</div>
+              <div style="font-size:14px;color:{{ c.textSec }};margin-top:6px;text-align:center;line-height:1.5;">Chúng tôi đã gửi mã 6 số đến<br/><span style="font-weight:700;color:{{ c.text }};">minhanh@email.com</span></div>
+
+              <div style="position:relative;margin-top:32px;">
+                <input value="{{ otpValue }}" oninput="{{ onOtpInput }}" inputmode="numeric" maxlength="6" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;outline:none;background:transparent;font-size:16px;cursor:pointer;z-index:2;"/>
+                <div style="display:flex;gap:12px;justify-content:center;">
+                  <sc-for list="{{ otpCells }}" as="oc" hint-placeholder-count="6">
+                    <div style="{{ oc.style }}">{{ oc.char }}</div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <sc-if value="{{ authErr }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-top:12px;font-size:11.5px;font-weight:600;color:{{ c.danger }};">
+                  <span class="msr" style="font-size:14px;">error</span> Mã xác thực không đúng hoặc đã hết hạn
+                </div>
+              </sc-if>
+              <sc-if value="{{ authOk }}" hint-placeholder-val="{{ true }}">
+                <div style="text-align:center;font-size:12px;color:{{ c.textTert }};margin-top:14px;font-family:'IBM Plex Mono',monospace;">Mã hết hạn sau {{ otpCountdown }}</div>
+              </sc-if>
+
+              <button onclick="{{ verifyOtp }}" disabled="{{ otpDisabled }}" style="{{ otpBtnStyle }}">Xác thực</button>
+
+              <div style="flex:1;"></div>
+              <div style="text-align:center;font-size:14px;color:{{ c.textSec }};">
+                Không nhận được mã? <a onclick="{{ resendOtp }}" style="color:{{ c.primary }};font-weight:700;text-decoration:none;cursor:pointer;">Gửi lại</a>
+              </div>
+              <div style="text-align:center;font-size:13px;color:{{ c.textTert }};margin-top:10px;">
+                <a onclick="{{ goRegister }}" style="color:{{ c.textSec }};font-weight:600;text-decoration:none;cursor:pointer;">Đổi email khác</a>
               </div>
             </div>
           </sc-if>
@@ -1409,6 +1448,7 @@ class Component extends DCLogic {
     language: 'vi', themeExpanded: false, langExpanded: false, authErr: false,
     editBudgetCat: null, editBudgetAmount: '', budgetOverrides: {}, deletedBudgetCats: [],
     categories: null, catFormId: null, catFormName: '', catFormIcon: 'restaurant', catFormColor: '#4F46E5', iconGroup: 'Ăn uống',
+    otp: '',
     profile: {ho:'Nguyễn', ten:'Minh Anh', phone:'0901234567', email:'minhanh@email.com', address:''},
     editProfileForm: {ho:'Nguyễn', ten:'Minh Anh', phone:'0901234567', email:'minhanh@email.com', address:''},
   };
@@ -1483,6 +1523,7 @@ class Component extends DCLogic {
     calendar: {num:7, title:'Calendar', purpose:'Xem nhanh ngày nào chi nhiều, ngày nào chi ít trong tháng.', flow:'Chạm một ngày → Bottom Sheet hiện danh sách giao dịch ngày đó → có thể Sửa/Xoá từng giao dịch.', components:'Calendar Day Cell (màu theo mức chi), Bottom Sheet, Transaction Item compact.', states:'Loading: toàn bộ lưới ngày dùng skeleton. Ngày không có giao dịch hiển thị "0" trung tính.', notes:'Sheet có scrim mờ dần, đóng khi chạm ra ngoài. Màu nền ô ngày đổi rõ ràng ở Dark mode (đỏ/xanh đậm hơn, chữ sáng).'},
     reports: {num:8, title:'Reports', purpose:'Phân tích chi tiêu sâu hơn Dashboard, theo Tuần/Tháng/Năm.', flow:'Chọn tab thời gian → xem lại Pie/Bar chart & các chỉ số nổi bật (top category, TB/ngày, ngày cao/thấp nhất, tỷ lệ tiết kiệm).', components:'Segment Control, Statistic Card mini x4, Pie Chart Card, Bar Chart Card.', states:'Loading dùng skeleton cho từng chart card. Empty khi kỳ đó chưa có dữ liệu (hiện illustration nhẹ).', notes:'Chart "vẽ" lại với animation grow 400ms khi đổi tab kỳ báo cáo.'},
     budget: {num:9, title:'Budget', purpose:'Thiết lập & theo dõi ngân sách theo từng danh mục để tránh chi vượt.', flow:'Xem progress từng danh mục → chạm để sửa hạn mức → nếu vượt 100%, card chuyển cảnh báo đỏ.', components:'Budget Progress Card, Progress Bar, Category icon badge.', states:'Card đổi sang nền đỏ nhạt + text đỏ khi used > budget (case "Giải trí" ở mock). Empty khi chưa thiết lập ngân sách nào.', notes:'Progress bar animate width khi vào màn hình (300ms ease-out).'},
+    otp: {num:'3b', title:'Verify OTP', purpose:'Xác thực email thật của người dùng ngay sau khi đăng ký bằng email/mật khẩu, trước khi vào app.', flow:'Register → Đăng ký → màn OTP → nhập 6 số bằng bàn phím số trong màn hình → Xác thực → Dashboard + snackbar. Có "Gửi lại" mã và "Đổi email khác" (quay lại Register).', components:'OTP cell x6 (auto-focus ô kế tiếp), Numeric keypad (0-9, clear, backspace), Primary Button (disabled tới khi đủ 6 số), Text Link, Countdown label.', states:'Nút Xác thực disabled khi chưa đủ 6 số. Error: toàn bộ 6 ô viền đỏ + chữ đỏ, kèm message "Mã xác thực không đúng hoặc đã hết hạn" (dùng bộ chọn Field validation ở sidebar để xem). Đang đếm ngược hiển thị thời hạn mã.', notes:'Bàn phím số riêng thay vì bật keyboard hệ thống để tránh nhảy layout và giữ ô OTP luôn trong tầm nhìn. Ô đang chờ nhập có viền Primary; ô đã có số nền Primary tint. Trong Flutter dùng Supabase Auth OTP/email confirmation.'},
     forgotPassword: {num:'2b', title:'Forgot Password', purpose:'Khôi phục quyền truy cập khi quên mật khẩu.', flow:'Từ Login → Quên mật khẩu → nhập email → Gửi liên kết đặt lại → email được gửi (snackbar xác nhận) → về Login.', components:'Filled TextField, Primary Button, Text Link.', states:'Error: email không tồn tại → inline error dưới field. Loading: spinner trên nút khi gửi.', notes:'Cùng phong cách Login/Register. Page transition slide-from-right.'},
     categoryList: {num:14, title:'Category Management', purpose:'Xem và quản lý toàn bộ danh mục chi tiêu của người dùng.', flow:'Từ Profile → Danh mục → chạm một dòng để sửa, hoặc nút + / "Thêm danh mục mới" để tạo.', components:'Grouped list rows (icon tile màu danh mục + tên + số giao dịch + chevron), Dashed CTA button, Icon button (+).', states:'Empty khi người dùng xóa hết danh mục (chỉ còn CTA tạo mới).', notes:'Icon tile dùng màu danh mục ở 13% opacity làm nền — cùng công thức với transaction item để nhất quán.'},
     categoryEdit: {num:'14b', title:'Create / Edit Category', purpose:'Tạo danh mục mới hoặc sửa tên, màu, biểu tượng của danh mục có sẵn.', flow:'Nhập tên → chọn màu (6 màu trong palette) → chọn nhóm biểu tượng (Ăn uống/Mua sắm/Di chuyển/Sinh hoạt/Khác) → chọn icon trong lưới 5 cột → Tạo danh mục / Cập nhật. Khi sửa có thêm "Xóa danh mục này" → dialog xác nhận.', components:'Live preview card, Filled TextField, Color swatches, Chip group (nhóm icon), Icon grid, Primary Button, Destructive Button, Delete Dialog (dùng lại).', states:'Nút lưu disabled khi chưa nhập tên. Inline error khi tên trùng danh mục khác. Preview cập nhật tức thì theo tên/màu/icon.', notes:'Bảng icon lấy từ Material Symbols Rounded, chia nhóm để tránh lưới dài vô tận. Chỉ cho chọn màu trong palette có sẵn, không dùng color picker tự do — giữ pie chart và biểu đồ luôn hài hòa.'},
@@ -1518,6 +1559,18 @@ class Component extends DCLogic {
   goIncomeMgmt = () => this.setState({screen:'incomeMgmt'});
   goHistory = () => this.setState({screen:'history'});
   goForgotPassword = () => this.setState({screen:'forgotPassword'});
+  goOtp = () => this.setState({screen:'otp', otp:'', authErr:false});
+  onOtpInput = (e) => this.setState({otp:(e.target.value||'').replace(/[^0-9]/g,'').slice(0,6), authErr:false});
+  verifyOtp = () => {
+    this.setState({screen:'dashboard', otp:'', snackbar:'Xác thực thành công'});
+    clearTimeout(this._st);
+    this._st = setTimeout(()=>this.setState({snackbar:null}), 2500);
+  };
+  resendOtp = () => {
+    this.setState({otp:'', authErr:false, snackbar:'Đã gửi lại mã xác thực'});
+    clearTimeout(this._st);
+    this._st = setTimeout(()=>this.setState({snackbar:null}), 2500);
+  };
   goBudgetAdd = () => this.setState({screen:'budgetAdd', selectedBudgetCategory:null, budgetAmount:''});
   goMessagesKit = () => this.setState({screen:'messagesKit'});
   goCategoryList = () => this.setState({screen:'categoryList'});
@@ -1727,7 +1780,7 @@ class Component extends DCLogic {
     const c = this.theme(s.dark);
     const screen = s.screen;
     const isMainTab = ['dashboard','calendar','budget','reports','profile'].includes(screen);
-    const isAuthLike = ['splash','languageSelect','login','register','forgotPassword'].includes(screen);
+    const isAuthLike = ['splash','languageSelect','login','register','forgotPassword','otp'].includes(screen);
     const vs = s.viewState;
 
     const catStyle = (cg) => ({
@@ -2004,6 +2057,7 @@ class Component extends DCLogic {
       {num:12,label:'Profile',key:'profile',icon:screenIcons.profile,go:this.goProfile},
       {num:13,label:'Settings',key:'settings',icon:screenIcons.settings,go:this.goSettings},
       {num:'1b',label:'Language Select',key:'languageSelect',icon:'language',go:()=>this.goTo('languageSelect')},
+      {num:'3b',label:'Verify OTP',key:'otp',icon:'mark_email_read',go:this.goOtp},
       {num:'2b',label:'Forgot Password',key:'forgotPassword',icon:'lock_reset',go:this.goForgotPassword},
       {num:'9b',label:'Add Budget',key:'budgetAdd',icon:'add_circle',go:this.goBudgetAdd},
       {num:'X',label:'Messages Kit',key:'messagesKit',icon:'notifications',go:this.goMessagesKit},
@@ -2136,7 +2190,19 @@ class Component extends DCLogic {
       inputStyle, btnPrimary, cardStyle, emptyStyle, monthChip, statMini, metaLabel, metaBody, filterBtnStyle,
       fieldLabelStyle, errTextStyle, hintTextStyle,
       authErr: s.authErr, authOk: !s.authErr,
-      isAuthScreen: ['login','register','forgotPassword'].includes(screen),
+      isAuthScreen: ['login','register','forgotPassword','otp'].includes(screen),
+      isOtp: screen==='otp', goOtp:this.goOtp, verifyOtp:this.verifyOtp, resendOtp:this.resendOtp,
+      otpValue: s.otp, onOtpInput:this.onOtpInput,
+      otpCountdown: '04:32',
+      otpCells: Array.from({length:6}, (_,i) => {
+        const char = s.otp[i] || '';
+        const active = s.otp.length===i;
+        const lineColor = s.authErr ? c.danger : char ? c.primary : active ? c.primary : c.border;
+        return { char,
+          style: `width:44px;height:52px;border-bottom:${(char||active||s.authErr)?'2.5px':'1.5px'} solid ${lineColor};display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:26px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:${s.authErr?c.danger:c.text};transition:border-color .2s;` };
+      }),
+      otpDisabled: s.otp.length < 6,
+      otpBtnStyle: `${btnPrimary};margin-top:20px;opacity:${s.otp.length<6?0.45:1};`,
       setAuthOk:this.setAuthOk, setAuthErr:this.setAuthErr,
       authOkBtnStyle: authBtn(!s.authErr), authErrBtnStyle: authBtn(s.authErr),
       loginEmailInputStyle: authFieldStyle, loginPassInputStyle: authFieldStyle,

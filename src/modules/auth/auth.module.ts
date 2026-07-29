@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthRepository } from './repositories/auth.repository';
 import { TokenService } from './services/token.service';
 import { OAuthVerifierService } from './services/oauth-verifier.service';
+import { EmailOtpService } from './services/email-otp.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RegisterUseCase } from './usecases/register.usecase';
@@ -15,6 +16,8 @@ import { RefreshTokensUseCase } from './usecases/refresh-tokens.usecase';
 import { LogoutUseCase } from './usecases/logout.usecase';
 import { ForgotPasswordUseCase } from './usecases/forgot-password.usecase';
 import { ResetPasswordUseCase } from './usecases/reset-password.usecase';
+import { VerifyOtpUseCase } from './usecases/verify-otp.usecase';
+import { ResendOtpUseCase } from './usecases/resend-otp.usecase';
 import { MailModule } from '../mail/mail.module';
 
 @Module({
@@ -24,6 +27,7 @@ import { MailModule } from '../mail/mail.module';
     AuthRepository,
     TokenService,
     OAuthVerifierService,
+    EmailOtpService,
     JwtStrategy,
     RegisterUseCase,
     LoginUseCase,
@@ -32,6 +36,8 @@ import { MailModule } from '../mail/mail.module';
     LogoutUseCase,
     ForgotPasswordUseCase,
     ResetPasswordUseCase,
+    VerifyOtpUseCase,
+    ResendOtpUseCase,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],
 })
