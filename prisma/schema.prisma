@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  FACEBOOK
+}
+
+enum ThemeMode {
+  LIGHT
+  DARK
+}
+
+enum Language {
+  VI
+  EN
+}
+
+enum CategoryType {
+  EXPENSE
+  INCOME
+}
+
+enum TransactionType {
+  EXPENSE
+  INCOME
+}
+
+model User {
+  id                   String       @id @default(uuid())
+  email                String       @unique
+  passwordHash         String?      @map("password_hash")
+  provider             AuthProvider @default(EMAIL)
+  providerId           String?      @map("provider_id")
+  firstName            String       @map("first_name")
+  lastName             String       @map("last_name")
+  phone                String?
+  address              String?
+  avatarUrl            String?      @map("avatar_url")
+  theme                ThemeMode    @default(LIGHT)
+  language             Language     @default(VI)
+  currency             String       @default("VND")
+  notificationsEnabled Boolean      @default(true) @map("notifications_enabled")
+  createdAt            DateTime     @default(now()) @map("created_at")
+  updatedAt            DateTime     @updatedAt @map("updated_at")
+  deletedAt            DateTime?    @map("deleted_at")
+
+  categories    Category[]
+  transactions  Transaction[]
+  budgets       Budget[]
+  savingsGoals  SavingsGoal[]
+  refreshTokens RefreshToken[]
+  uploadedFiles UploadedFile[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@index([deletedAt], map: "idx_users_soft_delete")
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "idx_refresh_tokens_user_id")
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "idx_password_reset_tokens_user_id")
+  @@map("password_reset_tokens")
+}
+
+model Category {
+  id        String       @id @default(uuid())
+  userId    String       @map("user_id")
+  name      String
+  color     String
+  icon      String
+  type      CategoryType
+  isDefault Boolean      @default(false) @map("is_default")
+  sortOrder Int          @default(0) @map("sort_order")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  deletedAt DateTime?    @map("deleted_at")
+  createdBy String?      @map("created_by")
+  updatedBy String?      @map("updated_by")
+
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([userId, name, type], map: "uq_categories_user_name_type")
+  @@index([userId, type], map: "idx_categories_user_id_type")
+  @@index([deletedAt], map: "idx_categories_soft_delete")
+  @@map("categories")
+}
+
+model Transaction {
+  id         String          @id @default(uuid())
+  userId     String          @map("user_id")
+  categoryId String          @map("category_id")
+  type       TransactionType
+  amount     Decimal         @db.Decimal(14, 2)
+  note       String?
+  occurredAt DateTime        @map("occurred_at") @db.Date
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
+  deletedAt  DateTime?       @map("deleted_at")
+  createdBy  String?         @map("created_by")
+  updatedBy  String?         @map("updated_by")
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([userId, occurredAt, id], map: "idx_transactions_user_cursor")
+  @@index([userId, type, occurredAt], map: "idx_transactions_user_type_date")
+  @@index([categoryId], map: "idx_transactions_category_id")
+  @@index([deletedAt], map: "idx_transactions_soft_delete")
+  @@map("transactions")
+}
+
+model Budget {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  categoryId  String    @map("category_id")
+  month       String
+  limitAmount Decimal   @map("limit_amount") @db.Decimal(14, 2)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([userId, categoryId, month], map: "uq_budgets_user_category_month")
+  @@index([userId, month], map: "idx_budgets_user_month")
+  @@index([deletedAt], map: "idx_budgets_soft_delete")
+  @@map("budgets")
+}
+
+model SavingsGoal {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  year         Int
+  targetAmount Decimal  @map("target_amount") @db.Decimal(14, 2)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, year], map: "uq_savings_goals_user_year")
+  @@map("savings_goals")
+}
+
+model UploadedFile {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  url       String
+  mimeType  String   @map("mime_type")
+  size      Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("uploaded_files")
+}
