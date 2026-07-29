@@ -19,13 +19,10 @@ export const validationSchema = Joi.object({
   FACEBOOK_APP_ID: Joi.string().required(),
   FACEBOOK_APP_SECRET: Joi.string().required(),
 
-  MINIO_ENDPOINT: Joi.string().required(),
-  MINIO_PORT: Joi.number().default(9000),
-  MINIO_USE_SSL: Joi.boolean().default(false),
-  MINIO_ACCESS_KEY: Joi.string().required(),
-  MINIO_SECRET_KEY: Joi.string().required(),
-  MINIO_BUCKET: Joi.string().default('spendly-avatars'),
-  MINIO_PUBLIC_URL: Joi.string().required(),
+  CLOUDINARY_CLOUD_NAME: Joi.string().required(),
+  CLOUDINARY_API_KEY: Joi.string().required(),
+  CLOUDINARY_API_SECRET: Joi.string().required(),
+  CLOUDINARY_UPLOAD_FOLDER: Joi.string().default('spendly-avatars'),
 
   ALLOWED_ORIGINS: Joi.string().default('http://localhost:3000'),
   THROTTLE_TTL: Joi.number().default(60),

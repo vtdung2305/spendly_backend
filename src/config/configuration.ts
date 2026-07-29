@@ -22,14 +22,11 @@ export default () => ({
     facebookAppId: process.env.FACEBOOK_APP_ID,
     facebookAppSecret: process.env.FACEBOOK_APP_SECRET,
   },
-  minio: {
-    endpoint: process.env.MINIO_ENDPOINT,
-    port: parseInt(process.env.MINIO_PORT ?? '9000', 10),
-    useSSL: process.env.MINIO_USE_SSL === 'true',
-    accessKey: process.env.MINIO_ACCESS_KEY,
-    secretKey: process.env.MINIO_SECRET_KEY,
-    bucket: process.env.MINIO_BUCKET ?? 'spendly-avatars',
-    publicUrl: process.env.MINIO_PUBLIC_URL,
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
+    uploadFolder: process.env.CLOUDINARY_UPLOAD_FOLDER ?? 'spendly-avatars',
   },
   cors: {
     allowedOrigins: (process.env.ALLOWED_ORIGINS ?? '').split(',').map((o) => o.trim()),

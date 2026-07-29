@@ -7,8 +7,9 @@ import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter
 import { MailQueueService } from '../src/modules/mail/queue/mail-queue.service';
 
 /**
- * Requires a real Postgres/Redis/MinIO reachable via the env vars in `.env`
- * (e.g. `docker compose up -d db redis minio` then `npx prisma migrate deploy`).
+ * Requires a real Postgres/Redis reachable via the env vars in `.env` (a real
+ * Cloudinary account is only needed for the Files module, not this auth flow)
+ * (e.g. `docker compose up -d db redis` then `npx prisma migrate deploy`).
  * Not run as part of `npm test` — see `npm run test:e2e`.
  *
  * MailQueueService is overridden with a capturing mock so the test doesn't need

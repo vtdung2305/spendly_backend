@@ -1,7 +1,7 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppException } from '../../../common/exceptions/app.exception';
-import { MinioService } from '../services/minio.service';
+import { CloudinaryService } from '../services/cloudinary.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -9,7 +9,7 @@ const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 @Injectable()
 export class UploadAvatarUseCase {
   constructor(
-    private readonly minio: MinioService,
+    private readonly cloudinary: CloudinaryService,
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
   ) {}
@@ -26,7 +26,7 @@ export class UploadAvatarUseCase {
       throw new AppException('FILE_TOO_LARGE', `Kích thước tệp vượt quá ${Math.round(maxSize / 1024 / 1024)}MB`, HttpStatus.BAD_REQUEST);
     }
 
-    const { url, size } = await this.minio.uploadAvatar(userId, file);
+    const { url, size } = await this.cloudinary.uploadAvatar(userId, file);
     const record = await this.prisma.uploadedFile.create({
       data: { userId, url, mimeType: file.mimetype, size },
     });

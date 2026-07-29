@@ -17,7 +17,7 @@ export class FilesController {
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }))
   @ApiConsumes('multipart/form-data')
   @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
-  @ApiOperation({ summary: 'Upload an avatar image to MinIO' })
+  @ApiOperation({ summary: 'Upload an avatar image to Cloudinary' })
   async upload(@CurrentUser('id') userId: string, @UploadedFile() file?: Express.Multer.File) {
     return this.uploadAvatarUseCase.execute(userId, file);
   }

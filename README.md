@@ -6,7 +6,7 @@ and the API contract designed against `design_handoff_finance_app/`.
 
 ## Stack
 
-NestJS · TypeScript · Prisma · PostgreSQL · Redis · MinIO (S3-compatible avatar storage) ·
+NestJS · TypeScript · Prisma · PostgreSQL · Redis · Cloudinary (avatar storage) ·
 JWT auth with Google/Facebook OAuth · Docker
 
 ## Architecture
@@ -28,7 +28,7 @@ as specified.
 |---|---|
 | `auth` | Register + email OTP verification, login, Google/Facebook OAuth, refresh token rotation, logout, forgot/reset password |
 | `users` | Current user profile + preferences (theme/language/currency/notifications) |
-| `files` | Avatar upload to MinIO |
+| `files` | Avatar upload to Cloudinary |
 | `categories` | Expense/income category CRUD; deleting a category reassigns its transactions to "Khác" |
 | `transactions` | Income/expense CRUD, daily summary (Calendar), period summary (Reports) |
 | `budgets` | Monthly per-category budget limits, with `spentAmount`/`usedPercent` computed from transactions |
@@ -41,13 +41,15 @@ as specified.
 ```bash
 cp .env.example .env
 # edit .env: set GOOGLE_CLIENT_ID / FACEBOOK_APP_ID / FACEBOOK_APP_SECRET,
-# and SMTP_HOST/SMTP_USER/SMTP_PASS (an Ethereal.email inbox works for local dev)
+# SMTP_HOST/SMTP_USER/SMTP_PASS (an Ethereal.email inbox works for local dev),
+# and CLOUDINARY_CLOUD_NAME/CLOUDINARY_API_KEY/CLOUDINARY_API_SECRET
+# (free account at https://cloudinary.com/users/register/free — dashboard shows all three)
 
 docker compose up --build
 ```
 
-This starts `api` (NestJS, hot-reload), `db` (Postgres 16), `redis`, and `minio`
-(console at http://localhost:9001, login `spendly` / `spendly12345`).
+This starts `api` (NestJS, hot-reload), `db` (Postgres 16), and `redis`. Avatars upload
+straight to Cloudinary, so there's no local storage service to run.
 
 Run migrations and seed a demo user once the containers are healthy:
 
@@ -63,7 +65,8 @@ Demo login after seeding: `demo@spendly.app` / `Passw0rd!`
 
 ## Getting started (local, no Docker)
 
-Requires Node 20+, a local Postgres, Redis, and MinIO (or point `.env` at hosted ones).
+Requires Node 20+ and a local Postgres + Redis (or point `.env` at hosted ones);
+Cloudinary is a hosted service so there's nothing extra to run locally for it.
 
 ```bash
 npm install
@@ -91,23 +94,17 @@ POSTGRES_DB=spendly_prod
 POSTGRES_USER=spendly
 POSTGRES_PASSWORD=<strong-random-password>
 REDIS_PASSWORD=<strong-random-password>
-MINIO_ROOT_USER=<strong-random-user>
-MINIO_ROOT_PASSWORD=<strong-random-password>
 ```
 
 Then make sure the app-facing vars in `.env` point at those same values and at the
-service names from `docker-compose.prod.yml` (`db`, `redis`, `minio` — not `localhost`):
+service names from `docker-compose.prod.yml` (`db`, `redis` — not `localhost`):
 
 ```bash
 DATABASE_URL=postgresql://spendly:<POSTGRES_PASSWORD>@db:5432/spendly_prod?schema=public&connection_limit=10
 REDIS_URL=redis://:<REDIS_PASSWORD>@redis:6379
-MINIO_ENDPOINT=minio
-MINIO_ACCESS_KEY=<MINIO_ROOT_USER>
-MINIO_SECRET_KEY=<MINIO_ROOT_PASSWORD>
-# Public URL your reverse proxy exposes MinIO under (avatars must be reachable by the app),
-# e.g. https://cdn.yourdomain.com — docker-compose.prod.yml does not publish MinIO's port,
-# so put a reverse-proxied domain (or a real S3/CDN) in front of it for this to resolve.
-MINIO_PUBLIC_URL=https://cdn.yourdomain.com
+CLOUDINARY_CLOUD_NAME=<real Cloudinary cloud name>
+CLOUDINARY_API_KEY=<real Cloudinary API key>
+CLOUDINARY_API_SECRET=<real Cloudinary API secret>
 JWT_SECRET=<32+ char random secret, different from dev>
 JWT_REFRESH_SECRET=<32+ char random secret, different from dev>
 ALLOWED_ORIGINS=https://app.yourdomain.com
@@ -119,6 +116,9 @@ FACEBOOK_APP_ID=<real prod app id>
 FACEBOOK_APP_SECRET=<real prod app secret>
 ```
 
+Cloudinary avatar URLs are already public HTTPS (`res.cloudinary.com/...`), so unlike a
+self-hosted object store there's no separate public endpoint/CDN to stand up for this.
+
 ### 3. Build and start
 
 ```bash
@@ -126,7 +126,7 @@ docker compose -f docker-compose.prod.yml --env-file .env up --build -d
 ```
 
 This builds the multi-stage production `Dockerfile` (non-root user, `npm prune --production`,
-`dumb-init` entrypoint), runs 2 replicas of `api`, and starts `db`/`redis`/`minio` — none of
+`dumb-init` entrypoint), runs 2 replicas of `api`, and starts `db`/`redis` — neither of
 which publish ports to the host in this file, only `api:3000` does.
 
 ### 4. Run migrations (not `migrate dev`)
@@ -158,9 +158,10 @@ docker compose -f docker-compose.prod.yml exec api npx prisma migrate deploy
 
 ## Production (without Docker)
 
-Same app, run as a plain Node process on the host. You still need Postgres 16, Redis 7,
-and an S3-compatible store (self-installed MinIO, or a real S3/GCS bucket) reachable from
-the server — install them natively or point `.env` at managed services (RDS, ElastiCache, S3...).
+Same app, run as a plain Node process on the host. You still need Postgres 16 and Redis 7
+reachable from the server — install them natively or point `.env` at managed services
+(RDS, ElastiCache...). Avatar storage is Cloudinary (hosted), so there's nothing extra to
+provision for that.
 
 ### 1. Install Node.js 20 and clone the repo
 
@@ -172,9 +173,9 @@ git clone <repo-url> spendly-backend && cd spendly-backend
 
 ### 2. Configure `.env`
 
-Same as the Docker guide above, except point `DATABASE_URL`/`REDIS_URL`/`MINIO_ENDPOINT`
-at wherever those services actually run (`localhost`, an internal hostname, or a managed
-service endpoint) instead of the Docker service names `db`/`redis`/`minio`.
+Same as the Docker guide above, except point `DATABASE_URL`/`REDIS_URL` at wherever those
+services actually run (`localhost`, an internal hostname, or a managed service endpoint)
+instead of the Docker service names `db`/`redis`. `CLOUDINARY_*` stays the same either way.
 
 ### 3. Install, generate, and build
 
@@ -232,8 +233,8 @@ sudo systemctl enable --now spendly-api
 ### 6. Reverse proxy + TLS
 
 Put nginx/Caddy in front of port 3000 for TLS termination — the app itself only speaks
-plain HTTP. Point your S3/MinIO's public URL (`MINIO_PUBLIC_URL`) at whatever serves
-avatar files publicly over HTTPS.
+plain HTTP. Avatar URLs are served directly from Cloudinary over HTTPS, so no extra
+reverse-proxy config is needed for those.
 
 ### 7. Verify
 
@@ -323,11 +324,12 @@ bucketing (week/month/year), cursor encode/decode, and the dashboard/report aggr
 Trivial pass-through use-cases (simple list/get/delete with no branching) are left to the
 e2e layer rather than unit-tested for their own sake.
 
-`test/app.e2e-spec.ts` covers the register → login → protected-route flow end-to-end
-against a real Postgres/Redis/MinIO:
+`test/app.e2e-spec.ts` covers the register → verify-otp → login → protected-route flow
+end-to-end against a real Postgres/Redis (MailQueueService is mocked, so no Cloudinary/SMTP
+credentials are needed for this test):
 
 ```bash
-docker compose up -d db redis minio
+docker compose up -d db redis
 npx prisma migrate deploy
 npm run test:e2e
 ```
