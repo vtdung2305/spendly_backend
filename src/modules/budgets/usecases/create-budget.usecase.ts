@@ -12,7 +12,9 @@ export class CreateBudgetUseCase {
   ) {}
 
   async execute(userId: string, dto: CreateBudgetDto) {
-    const category = await this.prisma.category.findFirst({ where: { id: dto.categoryId, userId, type: 'EXPENSE' } });
+    const category = await this.prisma.category.findFirst({
+      where: { id: dto.categoryId, userId, type: 'EXPENSE', deletedAt: null },
+    });
     if (!category) throw new NotFoundException('Category not found');
 
     const existing = await this.repo.findByCategoryAndMonth(userId, dto.categoryId, dto.month);

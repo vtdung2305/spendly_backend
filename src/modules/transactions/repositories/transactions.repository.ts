@@ -21,7 +21,7 @@ export class TransactionsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   findByIdForUser(id: string, userId: string): Promise<Transaction | null> {
-    return this.prisma.transaction.findFirst({ where: { id, userId } });
+    return this.prisma.transaction.findFirst({ where: { id, userId, deletedAt: null } });
   }
 
   create(userId: string, data: Omit<Prisma.TransactionUncheckedCreateInput, 'userId'>): Promise<Transaction> {
@@ -39,6 +39,7 @@ export class TransactionsRepository {
   async findMany(params: ListTransactionsParams) {
     const where: Prisma.TransactionWhereInput = {
       userId: params.userId,
+      deletedAt: null,
       ...(params.type ? { type: params.type } : {}),
       ...(params.categoryId ? { categoryId: params.categoryId } : {}),
       ...(params.dateFrom || params.dateTo
@@ -85,7 +86,7 @@ export class TransactionsRepository {
 
   async recentForUser(userId: string, limit: number) {
     return this.prisma.transaction.findMany({
-      where: { userId },
+      where: { userId, deletedAt: null },
       include: { category: true },
       orderBy: [{ occurredAt: 'desc' }, { createdAt: 'desc' }],
       take: limit,
@@ -94,7 +95,7 @@ export class TransactionsRepository {
 
   async sumByTypeInRange(userId: string, type: TransactionType, from: Date, to: Date): Promise<number> {
     const result = await this.prisma.transaction.aggregate({
-      where: { userId, type, occurredAt: { gte: from, lt: to } },
+      where: { userId, type, deletedAt: null, occurredAt: { gte: from, lt: to } },
       _sum: { amount: true },
     });
     return Number(result._sum.amount ?? 0);
@@ -103,7 +104,7 @@ export class TransactionsRepository {
   async dailyTotalsInRange(userId: string, type: TransactionType, from: Date, to: Date) {
     return this.prisma.transaction.groupBy({
       by: ['occurredAt'],
-      where: { userId, type, occurredAt: { gte: from, lt: to } },
+      where: { userId, type, deletedAt: null, occurredAt: { gte: from, lt: to } },
       _sum: { amount: true },
     });
   }
@@ -111,7 +112,7 @@ export class TransactionsRepository {
   async categoryBreakdownInRange(userId: string, type: TransactionType, from: Date, to: Date) {
     return this.prisma.transaction.groupBy({
       by: ['categoryId'],
-      where: { userId, type, occurredAt: { gte: from, lt: to } },
+      where: { userId, type, deletedAt: null, occurredAt: { gte: from, lt: to } },
       _sum: { amount: true },
     });
   }

@@ -15,7 +15,7 @@ export class UpdateTransactionUseCase {
     if (!transaction) throw new NotFoundException('Transaction not found');
 
     if (dto.categoryId) {
-      const category = await this.prisma.category.findFirst({ where: { id: dto.categoryId, userId } });
+      const category = await this.prisma.category.findFirst({ where: { id: dto.categoryId, userId, deletedAt: null } });
       if (!category) throw new NotFoundException('Category not found');
     }
 

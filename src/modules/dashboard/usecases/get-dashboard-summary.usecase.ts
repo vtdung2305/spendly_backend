@@ -45,11 +45,11 @@ export class GetDashboardSummaryUseCase {
     // Category donut is derived from the full month's expense breakdown, not just the recent list.
     const monthCategoryRows = await this.prisma.transaction.groupBy({
       by: ['categoryId'],
-      where: { userId, type: TransactionType.EXPENSE, occurredAt: { gte: from, lt: to } },
+      where: { userId, type: TransactionType.EXPENSE, deletedAt: null, occurredAt: { gte: from, lt: to } },
       _sum: { amount: true },
     });
     const categories = await this.prisma.category.findMany({
-      where: { id: { in: monthCategoryRows.map((r) => r.categoryId) } },
+      where: { id: { in: monthCategoryRows.map((r) => r.categoryId) }, deletedAt: null },
     });
     const categoryBreakdown = monthCategoryRows
       .map((r) => {

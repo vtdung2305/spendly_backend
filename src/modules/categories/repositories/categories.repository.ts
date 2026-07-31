@@ -8,21 +8,21 @@ export class CategoriesRepository {
 
   findMany(userId: string, type?: CategoryType): Promise<Category[]> {
     return this.prisma.category.findMany({
-      where: { userId, ...(type ? { type } : {}) },
+      where: { userId, deletedAt: null, ...(type ? { type } : {}) },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
     });
   }
 
   findByIdForUser(id: string, userId: string): Promise<Category | null> {
-    return this.prisma.category.findFirst({ where: { id, userId } });
+    return this.prisma.category.findFirst({ where: { id, userId, deletedAt: null } });
   }
 
   findDefaultForUser(userId: string, type: CategoryType): Promise<Category | null> {
-    return this.prisma.category.findFirst({ where: { userId, type, isDefault: true } });
+    return this.prisma.category.findFirst({ where: { userId, type, isDefault: true, deletedAt: null } });
   }
 
   findByNameAndType(userId: string, name: string, type: CategoryType): Promise<Category | null> {
-    return this.prisma.category.findFirst({ where: { userId, name, type } });
+    return this.prisma.category.findFirst({ where: { userId, name, type, deletedAt: null } });
   }
 
   create(userId: string, data: { name: string; color: string; icon: string; type: CategoryType }): Promise<Category> {
@@ -38,7 +38,7 @@ export class CategoriesRepository {
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     return this.prisma.transaction.count({
-      where: { categoryId, occurredAt: { gte: start, lt: end } },
+      where: { categoryId, deletedAt: null, occurredAt: { gte: start, lt: end } },
     });
   }
 

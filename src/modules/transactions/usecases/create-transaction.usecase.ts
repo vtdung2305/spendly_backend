@@ -11,7 +11,7 @@ export class CreateTransactionUseCase {
   ) {}
 
   async execute(userId: string, dto: CreateTransactionDto) {
-    const category = await this.prisma.category.findFirst({ where: { id: dto.categoryId, userId } });
+    const category = await this.prisma.category.findFirst({ where: { id: dto.categoryId, userId, deletedAt: null } });
     if (!category) throw new NotFoundException('Category not found');
 
     return this.repo.create(userId, {

@@ -26,7 +26,7 @@ export class GetPeriodSummaryUseCase {
     ]);
 
     const categories = await this.prisma.category.findMany({
-      where: { id: { in: categoryRows.map((r) => r.categoryId) } },
+      where: { id: { in: categoryRows.map((r) => r.categoryId) }, deletedAt: null },
     });
     const categoryBreakdown = categoryRows
       .map((r) => {

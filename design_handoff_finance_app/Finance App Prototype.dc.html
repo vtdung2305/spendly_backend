@@ -92,7 +92,7 @@
         </div>
 
         <!-- screen content area -->
-        <div style="position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;">
+        <div onScroll="{{ onContentScroll }}" style="position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;">
 
           <!-- 1. SPLASH -->
           <sc-if value="{{ isSplash }}" hint-placeholder-val="{{ true }}">
@@ -481,11 +481,11 @@
           <!-- 5/6. ADD TRANSACTION (Expense/Income unified) -->
           <sc-if value="{{ isAddTx }}" hint-placeholder-val="{{ false }}">
             <div style="min-height:844px;background:{{ c.bg }};padding-bottom:40px;transform:translateY({{ addTxOffset }});transition:transform .28s ease;">
-              <div style="padding:56px 16px 0;display:flex;align-items:center;gap:14px;">
-                <div onclick="{{ goDashboard }}" style="width:38px;height:38px;border-radius:12px;background:{{ c.surface }};border:1px solid {{ c.border }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
-                  <span class="msr" style="font-size:20px;color:{{ c.text }};">close</span>
-                </div>
-                <div style="font-size:17px;font-weight:700;color:{{ c.text }};">{{ addTxTitle }}</div>
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;gap:12px;{{ headerBg }}">
+                <button onclick="{{ goDashboard }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;padding-right:40px;">{{ addTxTitle }}</div>
               </div>
 
               <div style="display:flex;gap:6px;margin:16px 16px 0;background:{{ c.surfaceAlt }};border-radius:14px;padding:4px;">
@@ -567,21 +567,21 @@
 
           <!-- 7. CALENDAR -->
           <sc-if value="{{ isCalendar }}" hint-placeholder-val="{{ false }}">
-            <div style="min-height:844px;background:{{ c.bg }};padding:56px 16px 96px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;">
-                <button onclick="{{ prevMonth }}" style="width:36px;height:36px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-                  <span class="msr" style="font-size:18px;color:{{ c.text }};">chevron_left</span>
-                </button>
-                <div style="text-align:center;">
-                  <div style="font-size:19px;font-weight:700;color:{{ c.text }};">{{ calendarMonthLabel }}</div>
-                  <div style="font-size:12px;color:{{ c.textSec }};margin-top:2px;font-family:'IBM Plex Mono',monospace;">{{ calendarMonthTotal }}</div>
-                </div>
-                <button onclick="{{ nextMonth }}" style="width:36px;height:36px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-                  <span class="msr" style="font-size:18px;color:{{ c.text }};">chevron_right</span>
-                </button>
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:96px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;justify-content:space-between;{{ headerBg }}">
+                  <button onclick="{{ prevMonth }}" style="width:38px;height:38px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                    <span class="msr" style="font-size:20px;color:{{ headerFg }};">chevron_left</span>
+                  </button>
+                  <div style="text-align:center;">
+                    <div style="font-size:19px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">{{ calendarMonthLabel }}</div>
+                    <div style="font-size:12px;color:{{ headerFgSub }};margin-top:2px;font-family:'IBM Plex Mono',monospace;">{{ calendarMonthTotal }}</div>
+                  </div>
+                  <button onclick="{{ nextMonth }}" style="width:38px;height:38px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                    <span class="msr" style="font-size:20px;color:{{ headerFg }};">chevron_right</span>
+                  </button>
               </div>
-
-              <div style="{{ cardStyle }};margin-top:18px;padding:16px 12px;">
+              <div style="padding:16px;">
+              <div style="{{ cardStyle }};padding:16px 12px;">
                 <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">
                   <sc-for list="{{ weekdayLabels }}" as="wd" hint-placeholder-count="7">
                     <div style="text-align:center;font-size:11px;font-weight:700;color:{{ c.textTert }};padding-bottom:8px;">{{ wd }}</div>
@@ -632,14 +632,18 @@
                   </div>
                 </sc-for>
               </div>
+              </div>
             </div>
           </sc-if>
 
           <!-- 8. REPORTS -->
           <sc-if value="{{ isReports }}" hint-placeholder-val="{{ false }}">
-            <div style="min-height:844px;background:{{ c.bg }};padding:56px 16px 96px;">
-              <div style="font-size:19px;font-weight:700;color:{{ c.text }};">Báo cáo</div>
-              <div style="display:flex;gap:6px;margin-top:14px;background:{{ c.surfaceAlt }};border-radius:14px;padding:4px;">
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:96px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;text-align:center;{{ headerBg }}">
+                <div style="font-size:20px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Báo cáo</div>
+              </div>
+              <div style="padding:16px;">
+              <div style="display:flex;gap:6px;background:{{ c.surfaceAlt }};border-radius:14px;padding:4px;">
                 <sc-for list="{{ reportTabs }}" as="rt" hint-placeholder-count="3">
                   <button onclick="{{ rt.select }}" style="{{ rt.style }}">{{ rt.label }}</button>
                 </sc-for>
@@ -679,19 +683,22 @@
                   </sc-for>
                 </div>
               </div>
+              </div>
             </div>
           </sc-if>
 
           <!-- 9. BUDGET -->
           <sc-if value="{{ isBudget }}" hint-placeholder-val="{{ false }}">
-            <div style="min-height:844px;background:{{ c.bg }};padding:56px 16px 96px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;">
-                <div style="font-size:19px;font-weight:700;color:{{ c.text }};">Ngân sách</div>
-                <button onclick="{{ goBudgetAdd }}" style="background:none;border:none;padding:0;cursor:pointer;display:flex;">
-                  <span class="msr" style="font-size:22px;color:{{ c.primary }};">add_circle</span>
-                </button>
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:96px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;justify-content:space-between;{{ headerBg }}">
+                  <div style="width:44px;"></div>
+                  <div style="flex:1;text-align:center;font-size:20px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Ngân sách</div>
+                  <button onclick="{{ goBudgetAdd }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                    <span class="msr" style="font-size:26px;color:{{ headerFg }};">add</span>
+                  </button>
               </div>
-              <div style="font-size:12px;color:{{ c.textSec }};margin-top:2px;">{{ budgetSummaryStr }}</div>
+              <div style="padding:16px;">
+              <div style="font-size:12px;color:{{ c.textSec }};margin-top:-6px;">{{ budgetSummaryStr }}</div>
 
               <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
                 <sc-for list="{{ budgetItems }}" as="bi" hint-placeholder-count="5">
@@ -712,17 +719,18 @@
                   </div>
                 </sc-for>
               </div>
+              </div>
             </div>
           </sc-if>
 
           <!-- 9c. EDIT BUDGET -->
           <sc-if value="{{ isBudgetEdit }}" hint-placeholder-val="{{ false }}">
             <div style="min-height:844px;background:{{ c.bg }};padding-bottom:40px;">
-              <div style="padding:56px 16px 0;display:flex;align-items:center;gap:14px;">
-                <div onclick="{{ goBudget }}" style="width:38px;height:38px;border-radius:12px;background:{{ c.surface }};border:1px solid {{ c.border }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
-                  <span class="msr" style="font-size:20px;color:{{ c.text }};">close</span>
-                </div>
-                <div style="font-size:17px;font-weight:700;color:{{ c.text }};">Sửa ngân sách</div>
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;gap:12px;{{ headerBg }}">
+                <button onclick="{{ goBudget }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;padding-right:40px;">Sửa ngân sách</div>
               </div>
 
               <div style="padding:16px;">
@@ -764,11 +772,11 @@
           <!-- 9b. ADD BUDGET -->
           <sc-if value="{{ isBudgetAdd }}" hint-placeholder-val="{{ false }}">
             <div style="min-height:844px;background:{{ c.bg }};padding-bottom:40px;">
-              <div style="padding:56px 16px 0;display:flex;align-items:center;gap:14px;">
-                <div onclick="{{ goBudget }}" style="width:38px;height:38px;border-radius:12px;background:{{ c.surface }};border:1px solid {{ c.border }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
-                  <span class="msr" style="font-size:20px;color:{{ c.text }};">close</span>
-                </div>
-                <div style="font-size:17px;font-weight:700;color:{{ c.text }};">Thêm ngân sách</div>
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;gap:12px;{{ headerBg }}">
+                <button onclick="{{ goBudget }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;padding-right:40px;">Thêm ngân sách</div>
               </div>
 
               <div style="padding:16px;">
@@ -798,11 +806,11 @@
           <!-- EDIT PROFILE -->
           <sc-if value="{{ isEditProfile }}" hint-placeholder-val="{{ false }}">
             <div style="min-height:844px;background:{{ c.bg }};padding-bottom:40px;">
-              <div style="padding:56px 16px 0;display:flex;align-items:center;gap:14px;">
-                <div onclick="{{ goProfile }}" style="width:38px;height:38px;border-radius:12px;background:{{ c.surface }};border:1px solid {{ c.border }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
-                  <span class="msr" style="font-size:20px;color:{{ c.text }};">close</span>
-                </div>
-                <div style="font-size:17px;font-weight:700;color:{{ c.text }};">Chỉnh sửa hồ sơ</div>
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;gap:12px;{{ headerBg }}">
+                <button onclick="{{ goProfile }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;padding-right:40px;">Chỉnh sửa hồ sơ</div>
               </div>
 
               <div style="display:flex;flex-direction:column;align-items:center;padding:18px 16px 0;">
@@ -844,17 +852,20 @@
 
           <!-- CATEGORY MANAGEMENT -->
           <sc-if value="{{ isCategoryList }}" hint-placeholder-val="{{ false }}">
-            <div style="min-height:844px;background:{{ c.bg }};padding:56px 16px 116px;">
-              <div style="display:flex;align-items:center;gap:14px;">
-                <div onclick="{{ goProfile }}" style="width:38px;height:38px;border-radius:12px;background:{{ c.surface }};border:1px solid {{ c.border }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
-                  <span class="msr" style="font-size:20px;color:{{ c.text }};">arrow_back</span>
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:116px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;gap:12px;{{ headerBg }}">
+                <button onclick="{{ goProfile }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;min-width:0;text-align:center;">
+                  <div style="font-size:19px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Danh mục</div>
+                  <div style="font-size:11.5px;color:{{ headerFgSub }};margin-top:2px;">{{ categoryCountStr }}</div>
                 </div>
-                <div style="flex:1;font-size:19px;font-weight:700;color:{{ c.text }};">Danh mục</div>
-                <button onclick="{{ goCategoryCreate }}" style="background:none;border:none;padding:0;cursor:pointer;display:flex;">
-                  <span class="msr" style="font-size:22px;color:{{ c.primary }};">add_circle</span>
+                <button onclick="{{ goCategoryCreate }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="msr" style="font-size:26px;color:{{ headerFg }};">add</span>
                 </button>
               </div>
-              <div style="font-size:12px;color:{{ c.textSec }};margin-top:2px;">{{ categoryCountStr }}</div>
+              <div style="padding:16px;">
 
               <div style="{{ cardStyle }};margin-top:16px;padding:2px 4px;">
                 <sc-for list="{{ categoryRows }}" as="cr" hint-placeholder-count="8">
@@ -874,17 +885,18 @@
               <button onclick="{{ goCategoryCreate }}" style="{{ btnPrimary }};margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;">
                 <span class="msr" style="font-size:20px;">add</span> Thêm danh mục mới
               </button>
+              </div>
             </div>
           </sc-if>
 
           <!-- CREATE / EDIT CATEGORY -->
           <sc-if value="{{ isCategoryEdit }}" hint-placeholder-val="{{ false }}">
             <div style="min-height:844px;background:{{ c.bg }};padding-bottom:40px;">
-              <div style="padding:56px 16px 0;display:flex;align-items:center;gap:14px;">
-                <div onclick="{{ goCategoryList }}" style="width:38px;height:38px;border-radius:12px;background:{{ c.surface }};border:1px solid {{ c.border }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
-                  <span class="msr" style="font-size:20px;color:{{ c.text }};">close</span>
-                </div>
-                <div style="font-size:17px;font-weight:700;color:{{ c.text }};">{{ categoryEditTitle }}</div>
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;gap:12px;{{ headerBg }}">
+                <button onclick="{{ goCategoryList }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;padding-right:40px;">{{ categoryEditTitle }}</div>
               </div>
 
               <div style="padding:16px;">
@@ -1067,11 +1079,17 @@
 
           <!-- 10. INCOME MANAGEMENT -->
           <sc-if value="{{ isIncomeMgmt }}" hint-placeholder-val="{{ false }}">
-            <div style="min-height:844px;background:{{ c.bg }};padding:56px 16px 96px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;">
-                <div style="font-size:19px;font-weight:700;color:{{ c.text }};">Thu nhập</div>
-                <span class="msr" style="font-size:22px;color:{{ c.primary }};">add_circle</span>
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:96px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;justify-content:space-between;{{ headerBg }}">
+                  <button onclick="{{ goProfile }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                    <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                  </button>
+                  <div style="flex:1;text-align:center;font-size:19px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Thu nhập</div>
+                  <button onclick="{{ goAddTx('income') }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                    <span class="msr" style="font-size:26px;color:{{ headerFg }};">add</span>
+                  </button>
               </div>
+              <div style="padding:16px;">
               <div style="display:flex;gap:8px;margin-top:14px;overflow-x:auto;">
                 <sc-for list="{{ monthChips }}" as="mc" hint-placeholder-count="4">
                   <div style="{{ mc.style }}">{{ mc.label }}</div>
@@ -1098,13 +1116,17 @@
                   </div>
                 </sc-for>
               </div>
+              </div>
             </div>
           </sc-if>
 
           <!-- 11. TRANSACTION HISTORY -->
           <sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
-            <div style="min-height:844px;background:{{ c.bg }};padding:56px 16px 96px;">
-              <div style="font-size:19px;font-weight:700;color:{{ c.text }};">Lịch sử giao dịch</div>
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:96px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;text-align:center;{{ headerBg }}">
+                <div style="font-size:19px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Lịch sử giao dịch</div>
+              </div>
+              <div style="padding:16px;">
               <div style="display:flex;gap:8px;margin-top:14px;">
                 <div style="flex:1;display:flex;align-items:center;gap:8px;background:{{ c.surface }};border:1.5px solid {{ c.border }};border-radius:14px;padding:0 14px;height:48px;">
                   <span class="msr" style="font-size:19px;color:{{ c.textSec }};">search</span>
@@ -1162,14 +1184,18 @@
                   </sc-for>
                 </div>
               </sc-if>
+              </div>
             </div>
           </sc-if>
 
           <!-- 12. PROFILE -->
           <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
-            <div style="min-height:844px;background:{{ c.bg }};padding:56px 16px 96px;">
-              <div style="font-size:19px;font-weight:700;color:{{ c.text }};">Hồ sơ</div>
-              <div style="display:flex;align-items:center;gap:14px;margin-top:18px;{{ cardStyle }};">
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:96px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;text-align:center;{{ headerBg }}">
+                <div style="font-size:20px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Hồ sơ</div>
+              </div>
+              <div style="padding:16px;">
+              <div style="display:flex;align-items:center;gap:14px;margin-top:0;{{ cardStyle }};">
                 <div style="width:56px;height:56px;border-radius:999px;background:{{ c.primary }};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0;">{{ profileInitials }}</div>
                 <div style="flex:1;min-width:0;">
                   <div style="font-size:15px;font-weight:700;color:{{ c.text }};">{{ profileFullName }}</div>
@@ -1199,13 +1225,17 @@
               </div>
 
               <button onclick="{{ logout }}" style="width:100%;margin-top:16px;height:48px;border-radius:16px;background:{{ c.dangerLight }};color:{{ c.danger }};font-size:14px;font-weight:700;border:none;cursor:pointer;">Đăng xuất</button>
+              </div>
             </div>
           </sc-if>
 
           <!-- 13. SETTINGS -->
           <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
-            <div style="min-height:844px;background:{{ c.bg }};padding:56px 16px 96px;">
-              <div style="font-size:19px;font-weight:700;color:{{ c.text }};padding-top:4px;">Cài đặt</div>
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:96px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;text-align:center;{{ headerBg }}">
+                <div style="font-size:20px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Cài đặt</div>
+              </div>
+              <div style="padding:16px;">
 
               <div style="{{ metaLabel }};margin:18px 4px 8px;">Chung</div>
               <div style="{{ cardStyle }};padding:2px 4px;">
@@ -1250,6 +1280,7 @@
                     <span class="msr" style="font-size:18px;color:{{ c.textTert }};">chevron_right</span>
                   </div>
                 </sc-for>
+              </div>
               </div>
             </div>
           </sc-if>
@@ -1369,7 +1400,7 @@
         <!-- floating add button (all non-auth screens) -->
         <sc-if value="{{ showFab }}" hint-placeholder-val="{{ false }}">
           <button onclick="{{ goAddFab }}" style="position:absolute;right:16px;bottom:{{ fabBottom }};width:52px;height:52px;border-radius:99px;background:{{ c.primary }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 20px rgba(79,70,229,.4);z-index:75;">
-            <span class="msr" style="font-size:26px;color:#fff;">add</span>
+            <span class="msr" style="font-size:26px;color:{{ headerFg }};">add</span>
           </button>
         </sc-if>
 
@@ -1448,7 +1479,7 @@ class Component extends DCLogic {
     language: 'vi', themeExpanded: false, langExpanded: false, authErr: false,
     editBudgetCat: null, editBudgetAmount: '', budgetOverrides: {}, deletedBudgetCats: [],
     categories: null, catFormId: null, catFormName: '', catFormIcon: 'restaurant', catFormColor: '#4F46E5', iconGroup: 'Ăn uống',
-    otp: '',
+    otp: '', scrollY: 0,
     profile: {ho:'Nguyễn', ten:'Minh Anh', phone:'0901234567', email:'minhanh@email.com', address:''},
     editProfileForm: {ho:'Nguyễn', ten:'Minh Anh', phone:'0901234567', email:'minhanh@email.com', address:''},
   };
@@ -1543,6 +1574,10 @@ class Component extends DCLogic {
   componentWillUnmount(){ clearTimeout(this._t); clearTimeout(this._st); }
 
   goTo = (screen) => this.setState({screen});
+  onContentScroll = (e) => {
+    const y = e.target.scrollTop;
+    if (Math.abs(y - this.state.scrollY) > 2) this.setState({scrollY: y});
+  };
   restartSplash = () => {
     this.setState({screen:'splash', splashState:'loading'});
     clearTimeout(this._t);
@@ -2071,6 +2106,12 @@ class Component extends DCLogic {
 
     const metaKey = screen; const meta = this.screenMeta[metaKey] || {};
 
+    const scrolled = (s.scrollY||0) > 8;
+    const headerBg = `background:linear-gradient(135deg,${c.primary},${c.splashEnd});box-shadow:${scrolled ? '0 4px 14px rgba(79,70,229,.22)' : 'none'};transition:box-shadow .35s ease;`;
+    const headerFg = '#fff';
+    const headerFgSub = 'rgba(255,255,255,.82)';
+    const headerBtnBg = 'none';
+
     const inputStyle = `display:flex;align-items:center;gap:10px;height:50px;border:1px solid ${c.border};background:${c.surface};border-radius:14px;padding:0 14px;`;
     const inputStyleErr = `display:flex;align-items:center;gap:10px;height:50px;border:1.5px solid ${c.danger};background:${c.surface};border-radius:14px;padding:0 14px;`;
     const fieldLabelStyle = `font-size:13px;font-weight:700;color:${c.textSec};margin-bottom:8px;`;
@@ -2187,6 +2228,7 @@ class Component extends DCLogic {
 
       vsNormalStyle: vsBtn('normal','Normal'), vsEmptyStyle: vsBtn('empty','Empty'), vsLoadingStyle: vsBtn('loading','Loading'),
 
+      onContentScroll: this.onContentScroll, headerBg, headerFg, headerFgSub, headerBtnBg,
       inputStyle, btnPrimary, cardStyle, emptyStyle, monthChip, statMini, metaLabel, metaBody, filterBtnStyle,
       fieldLabelStyle, errTextStyle, hintTextStyle,
       authErr: s.authErr, authOk: !s.authErr,

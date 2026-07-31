@@ -8,18 +8,18 @@ export class BudgetsRepository {
 
   findByMonth(userId: string, month: string) {
     return this.prisma.budget.findMany({
-      where: { userId, month },
+      where: { userId, month, deletedAt: null },
       include: { category: true },
       orderBy: { createdAt: 'asc' },
     });
   }
 
   findByIdForUser(id: string, userId: string): Promise<Budget | null> {
-    return this.prisma.budget.findFirst({ where: { id, userId } });
+    return this.prisma.budget.findFirst({ where: { id, userId, deletedAt: null } });
   }
 
   findByCategoryAndMonth(userId: string, categoryId: string, month: string): Promise<Budget | null> {
-    return this.prisma.budget.findFirst({ where: { userId, categoryId, month } });
+    return this.prisma.budget.findFirst({ where: { userId, categoryId, month, deletedAt: null } });
   }
 
   create(userId: string, categoryId: string, month: string, limitAmount: number): Promise<Budget> {
@@ -40,7 +40,7 @@ export class BudgetsRepository {
     const to = new Date(year, m, 1);
     const rows = await this.prisma.transaction.groupBy({
       by: ['categoryId'],
-      where: { userId, type: 'EXPENSE', occurredAt: { gte: from, lt: to } },
+      where: { userId, type: 'EXPENSE', deletedAt: null, occurredAt: { gte: from, lt: to } },
       _sum: { amount: true },
     });
     return new Map(rows.map((r) => [r.categoryId, Number(r._sum.amount ?? 0)]));
