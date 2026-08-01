@@ -254,6 +254,67 @@ npx prisma migrate deploy
 pm2 reload spendly-api      # zero-downtime reload; use `systemctl restart spendly-api` for the unit variant
 ```
 
+## Deploy to Render.com
+
+Render can run this either as a **Docker** service (reuses the repo's production `Dockerfile`)
+or as a **native Node** service. Docker is recommended since it's the exact image already
+built and tested locally.
+
+### 1. Provision managed services
+
+In the Render dashboard: **New → PostgreSQL** and **New → Key Value (Redis)**. Copy their
+**Internal Database URL** / **Internal Connection String** — you'll wire these into the web
+service's env vars next (Internal URLs are free and faster than External ones for
+service-to-service traffic on Render).
+
+### 2. Create the Web Service
+
+**New → Web Service** → connect this repo → **Environment: Docker** (Dockerfile Path: `Dockerfile`,
+which already builds to the `production` stage).
+
+Set these under **Settings**:
+- **Health Check Path**: `/health`
+- **Pre-Deploy Command**: `npx prisma migrate deploy`
+  (runs once per deploy, after the image builds, before traffic switches to it — exactly
+  where migrations belong. Requires `prisma` to be a regular `dependency`, not a
+  `devDependency`, since the production image prunes dev deps — already the case in this repo.)
+
+### 3. Environment variables
+
+Add every var from `.env.example` under **Environment**, with these Render-specific values:
+```bash
+DATABASE_URL=<Postgres Internal Database URL from step 1>
+REDIS_URL=<Redis Internal Connection String from step 1>
+NODE_ENV=production
+# PORT is injected automatically by Render — do not set it yourself
+JWT_SECRET=<generate: openssl rand -hex 32>
+JWT_REFRESH_SECRET=<generate: openssl rand -hex 32 — must differ from JWT_SECRET>
+ALLOWED_ORIGINS=https://your-flutter-web-or-admin-domain.com
+```
+Plus real values for `GOOGLE_CLIENT_ID`/`FACEBOOK_APP_*`, `CLOUDINARY_*`, `SMTP_*`,
+`APP_RESET_PASSWORD_URL`, and optionally `FIREBASE_*` (leave blank to disable push).
+
+### 4. Deploy
+
+Push to the branch Render is watching (or click **Manual Deploy**). Render will:
+build the Docker image → run the Pre-Deploy Command (migrations) → start the container →
+health-check `/health` → switch traffic over.
+
+### 5. Redeploy on a new release
+
+Just `git push` — Render rebuilds and redeploys automatically (or re-run the same Manual
+Deploy). No SSH/manual commands needed; the Pre-Deploy Command re-runs migrations every time.
+
+### Alternative: native Node environment (no Docker)
+
+If you'd rather not use the Dockerfile: **Environment: Node**, then:
+- **Build Command**: `npm ci && npx prisma generate && npm run build`
+- **Pre-Deploy Command**: `npx prisma migrate deploy`
+- **Start Command**: `npm run start:prod`
+
+Same env vars as above. This path never prunes `devDependencies`, so it works either way
+regardless of where `prisma` lives in `package.json`.
+
 ## OAuth setup notes
 
 - **Google**: create an OAuth 2.0 Client ID (Web or Mobile) in Google Cloud Console;
