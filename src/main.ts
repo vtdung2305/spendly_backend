@@ -39,12 +39,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
-  // const port = config.get<number>('port') ?? 3000;
-  const port = Number(process.env.PORT) || 3000;
-  console.log('Before listen');
-
+  const port = config.get<number>('port') ?? 3000;
   await app.listen(port, '0.0.0.0');
-
-  console.log('After listen');
 }
 bootstrap();
