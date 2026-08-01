@@ -13,6 +13,8 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
 import { BudgetsModule } from './modules/budgets/budgets.module';
 import { SavingsGoalsModule } from './modules/savings-goals/savings-goals.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { RecurringTransactionsModule } from './modules/recurring-transactions/recurring-transactions.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     BudgetsModule,
     SavingsGoalsModule,
     DashboardModule,
+    RecurringTransactionsModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

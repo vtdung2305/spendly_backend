@@ -34,6 +34,8 @@ as specified.
 | `budgets` | Monthly per-category budget limits, with `spentAmount`/`usedPercent` computed from transactions |
 | `savings-goals` | Yearly savings target; `currentAmount` is computed at read time, never stored |
 | `dashboard` | One aggregated `GET /dashboard/summary` endpoint composing the modules above |
+| `recurring-transactions` | CRUD for recurring expenses/income; daily BullMQ job auto-generates the real Transaction on the configured day of month |
+| `notifications` | In-app notification center + FCM push (optional), reminder settings, device token registration; auto-fires on budget-threshold-crossing, recurring generation, and a daily no-transaction-logged check |
 | `mail` | SMTP sending (nodemailer) + `emails` BullMQ queue; `auth` enqueues password-reset emails here |
 
 ## Getting started (Docker)
@@ -260,6 +262,30 @@ pm2 reload spendly-api      # zero-downtime reload; use `systemctl restart spend
 - **Facebook**: create a Facebook App; the backend verifies the client-supplied access
   token via the Graph API `debug_token` endpoint using `FACEBOOK_APP_ID`/`FACEBOOK_APP_SECRET`,
   then fetches the profile. The Facebook app must have the `email` permission approved.
+
+## Push notifications (FCM)
+
+Optional. Without `FIREBASE_*` env vars set, `FirebaseAdminService` logs one warning at
+boot and every `notify()` call just skips the push step — the in-app notification (and
+`GET /api/v1/notifications` list) still works fully either way.
+
+To enable real push:
+1. Firebase Console → Project Settings → Service Accounts → **Generate new private key**.
+2. From the downloaded JSON, set `FIREBASE_PROJECT_ID` (`project_id`), `FIREBASE_CLIENT_EMAIL`
+   (`client_email`), and `FIREBASE_PRIVATE_KEY` (`private_key` — paste as-is, including the
+   literal `\n` sequences; the app un-escapes them at startup).
+3. The Flutter app registers its FCM token via `POST /api/v1/notifications/device-tokens`
+   after login, and should call `DELETE /api/v1/notifications/device-tokens` on logout.
+
+Notifications auto-fire from three triggers (each gated by the user's reminder-settings
+toggle for that type — see `GET/PATCH /api/v1/notifications/reminder-settings`):
+- **Budget alert** — the moment an expense pushes a category from under 80% to 80%+ of
+  its monthly budget (compares before/after this specific transaction, so it doesn't
+  re-fire on every expense once already over).
+- **Recurring generated** — right after the daily recurring-transactions job creates a
+  transaction (see the `recurring-transactions` module).
+- **Daily reminder** — an hourly job (`0 * * * *`) checks every user whose reminder time
+  matches the current hour and who hasn't logged a transaction yet today.
 
 ## Email delivery
 

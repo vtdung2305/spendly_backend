@@ -93,6 +93,13 @@ export class TransactionsRepository {
     });
   }
 
+  async hasAnyOnDate(userId: string, from: Date, to: Date): Promise<boolean> {
+    const count = await this.prisma.transaction.count({
+      where: { userId, deletedAt: null, occurredAt: { gte: from, lt: to } },
+    });
+    return count > 0;
+  }
+
   async sumByTypeInRange(userId: string, type: TransactionType, from: Date, to: Date): Promise<number> {
     const result = await this.prisma.transaction.aggregate({
       where: { userId, type, deletedAt: null, occurredAt: { gte: from, lt: to } },

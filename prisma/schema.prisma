@@ -61,6 +61,10 @@ model User {
   uploadedFiles UploadedFile[]
   passwordResetTokens PasswordResetToken[]
   emailOtps     EmailOtp[]
+  recurringTransactions RecurringTransaction[]
+  deviceTokens  DeviceToken[]
+  notifications Notification[]
+  reminderSettings ReminderSettings?
 
   @@index([deletedAt], map: "idx_users_soft_delete")
   @@map("users")
@@ -125,9 +129,10 @@ model Category {
   createdBy String?      @map("created_by")
   updatedBy String?      @map("updated_by")
 
-  user         User          @relation(fields: [userId], references: [id])
-  transactions Transaction[]
-  budgets      Budget[]
+  user                  User                   @relation(fields: [userId], references: [id])
+  transactions          Transaction[]
+  budgets               Budget[]
+  recurringTransactions RecurringTransaction[]
 
   @@unique([userId, name, type], map: "uq_categories_user_name_type")
   @@index([userId, type], map: "idx_categories_user_id_type")
@@ -181,17 +186,96 @@ model Budget {
 }
 
 model SavingsGoal {
-  id           String   @id @default(uuid())
-  userId       String   @map("user_id")
+  id           String    @id @default(uuid())
+  userId       String    @map("user_id")
   year         Int
-  targetAmount Decimal  @map("target_amount") @db.Decimal(14, 2)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  targetAmount Decimal   @map("target_amount") @db.Decimal(14, 2)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
 
   user User @relation(fields: [userId], references: [id])
 
   @@unique([userId, year], map: "uq_savings_goals_user_year")
+  @@index([deletedAt], map: "idx_savings_goals_soft_delete")
   @@map("savings_goals")
+}
+
+model RecurringTransaction {
+  id                 String          @id @default(uuid())
+  userId             String          @map("user_id")
+  categoryId         String          @map("category_id")
+  type               TransactionType
+  label              String
+  amount             Decimal         @db.Decimal(14, 2)
+  dayOfMonth         Int             @map("day_of_month")
+  isActive           Boolean         @default(true) @map("is_active")
+  // "YYYY-MM" of the last month a Transaction was auto-generated for, so the
+  // daily job never double-generates within the same month.
+  lastGeneratedMonth String?         @map("last_generated_month")
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+  deletedAt          DateTime?       @map("deleted_at")
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([userId], map: "idx_recurring_transactions_user_id")
+  @@index([isActive, dayOfMonth], map: "idx_recurring_transactions_active_day")
+  @@index([deletedAt], map: "idx_recurring_transactions_soft_delete")
+  @@map("recurring_transactions")
+}
+
+enum NotificationType {
+  BUDGET_ALERT
+  DAILY_REMINDER
+  RECURRING_GENERATED
+}
+
+model DeviceToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  platform  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "idx_device_tokens_user_id")
+  @@map("device_tokens")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  body      String
+  icon      String
+  tone      String
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt], map: "idx_notifications_user_cursor")
+  @@index([userId, isRead], map: "idx_notifications_user_unread")
+  @@map("notifications")
+}
+
+model ReminderSettings {
+  userId                 String   @id @map("user_id")
+  dailyExpenseReminder    Boolean  @default(true) @map("daily_expense_reminder")
+  budgetAlertReminder     Boolean  @default(true) @map("budget_alert_reminder")
+  recurringAlertReminder  Boolean  @default(false) @map("recurring_alert_reminder")
+  dailyReminderTime       String   @default("20:00") @map("daily_reminder_time")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([dailyExpenseReminder, dailyReminderTime], map: "idx_reminder_settings_daily_due")
+  @@map("reminder_settings")
 }
 
 model UploadedFile {

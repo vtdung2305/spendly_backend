@@ -34,6 +34,17 @@ export class BudgetsRepository {
     return this.prisma.budget.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
+  async spentForCategoryMonth(userId: string, categoryId: string, month: string): Promise<number> {
+    const [year, m] = month.split('-').map(Number);
+    const from = new Date(year, m - 1, 1);
+    const to = new Date(year, m, 1);
+    const result = await this.prisma.transaction.aggregate({
+      where: { userId, categoryId, type: 'EXPENSE', deletedAt: null, occurredAt: { gte: from, lt: to } },
+      _sum: { amount: true },
+    });
+    return Number(result._sum.amount ?? 0);
+  }
+
   async spentByCategoryForMonth(userId: string, month: string): Promise<Map<string, number>> {
     const [year, m] = month.split('-').map(Number);
     const from = new Date(year, m - 1, 1);

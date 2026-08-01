@@ -36,4 +36,9 @@ export const validationSchema = Joi.object({
   SMTP_PASS: Joi.string().allow('').optional(),
   MAIL_FROM: Joi.string().default('Spendly <no-reply@spendly.app>'),
   APP_RESET_PASSWORD_URL: Joi.string().default('http://localhost:8081/reset-password'),
+
+  // Optional — push notifications no-op with a warning if these are unset.
+  FIREBASE_PROJECT_ID: Joi.string().allow('').optional(),
+  FIREBASE_CLIENT_EMAIL: Joi.string().allow('').optional(),
+  FIREBASE_PRIVATE_KEY: Joi.string().allow('').optional(),
 });

@@ -47,4 +47,11 @@ export default () => ({
     from: process.env.MAIL_FROM ?? 'Spendly <no-reply@spendly.app>',
     resetPasswordUrl: process.env.APP_RESET_PASSWORD_URL ?? 'http://localhost:8081/reset-password',
   },
+  firebase: {
+    // Optional: push notifications are skipped (with a warning logged once)
+    // when these aren't set, so local dev without a Firebase project still works.
+    projectId: process.env.FIREBASE_PROJECT_ID || undefined,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL || undefined,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n') || undefined,
+  },
 });

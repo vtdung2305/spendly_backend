@@ -17,4 +17,8 @@ export class TransactionsQueryService {
   recentForUser(userId: string, limit: number) {
     return this.repo.recentForUser(userId, limit);
   }
+
+  hasAnyOnDate(userId: string, from: Date, to: Date) {
+    return this.repo.hasAnyOnDate(userId, from, to);
+  }
 }

@@ -390,11 +390,12 @@
                 <span class="msr" style="font-size:20px;color:{{ c.textTert }};">chevron_right</span>
               </button>
 
-              <div style="{{ cardStyle }};margin-top:14px;">
+              <button onclick="{{ goSavingsGoal }}" style="{{ cardStyle }};margin-top:14px;text-align:left;border:1px solid {{ c.border }};cursor:pointer;width:100%;display:block;font:inherit;color:inherit;-webkit-appearance:none;appearance:none;box-sizing:border-box;">
                 <div style="display:flex;align-items:center;gap:10px;">
                   <span class="msr" style="font-size:20px;color:{{ c.success }};">flag</span>
                   <div style="flex:1;font-size:14px;font-weight:700;color:{{ c.text }};">Mục tiêu tiết kiệm 2026</div>
                   <div style="font-size:12px;font-weight:700;color:{{ c.success }};">53%</div>
+                  <span class="msr" style="font-size:18px;color:{{ c.textTert }};">chevron_right</span>
                 </div>
                 <div style="height:8px;border-radius:99px;background:{{ c.surfaceAlt }};margin-top:12px;overflow:hidden;">
                   <div style="height:100%;width:53%;background:{{ c.success }};border-radius:99px;"></div>
@@ -403,7 +404,7 @@
                   <span style="font-size:11px;color:{{ c.textSec }};">159.000.000 ₫</span>
                   <span style="font-size:11px;color:{{ c.textTert }};">/ 300.000.000 ₫</span>
                 </div>
-              </div>
+              </button>
 
               <div style="{{ cardStyle }};margin-top:14px;">
                 <div style="font-size:14px;font-weight:700;color:{{ c.text }};">Chi tiêu theo danh mục</div>
@@ -698,7 +699,16 @@
                   </button>
               </div>
               <div style="padding:16px;">
-              <div style="font-size:12px;color:{{ c.textSec }};margin-top:-6px;">{{ budgetSummaryStr }}</div>
+              <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
+                <button onclick="{{ prevMonth }}" style="width:34px;height:34px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                  <span class="msr" style="font-size:18px;color:{{ c.text }};">chevron_left</span>
+                </button>
+                <div style="font-size:15px;font-weight:800;color:{{ c.text }};min-width:120px;text-align:center;">{{ budgetMonthLabel }}</div>
+                <button onclick="{{ nextMonth }}" style="width:34px;height:34px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                  <span class="msr" style="font-size:18px;color:{{ c.text }};">chevron_right</span>
+                </button>
+              </div>
+              <div style="font-size:12px;color:{{ c.textSec }};margin-top:10px;text-align:center;">{{ budgetSummaryStr }}</div>
 
               <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
                 <sc-for list="{{ budgetItems }}" as="bi" hint-placeholder-count="5">
@@ -719,6 +729,61 @@
                   </div>
                 </sc-for>
               </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- 9d. SAVINGS GOAL DETAIL/HISTORY -->
+          <sc-if value="{{ isSavingsGoal }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:40px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;gap:12px;{{ headerBg }}">
+                <button onclick="{{ goDashboard }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;padding-right:44px;">Mục tiêu tiết kiệm</div>
+              </div>
+
+              <div style="padding:16px;">
+                <div style="border-radius:24px;padding:24px 22px;background:linear-gradient(135deg,{{ c.primary }},{{ c.splashEnd }});box-shadow:{{ c.shadow }};text-align:center;">
+                  <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                    <span class="msr" style="font-size:22px;color:#fff;">flag</span>
+                    <div style="font-size:15px;font-weight:700;color:#fff;">Mục tiêu tiết kiệm 2026</div>
+                  </div>
+                  <div style="font-size:32px;font-weight:800;color:#fff;margin-top:14px;font-family:'IBM Plex Mono',monospace;">{{ savingsGoalCurrentStr }}</div>
+                  <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:4px;">trong tổng mục tiêu {{ savingsGoalTargetStr }}</div>
+                  <div style="height:10px;border-radius:99px;background:rgba(255,255,255,.28);margin-top:16px;overflow:hidden;">
+                    <div style="height:100%;width:{{ savingsGoalPct }}%;background:#fff;border-radius:99px;"></div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;margin-top:8px;">
+                    <span style="font-size:12px;font-weight:700;color:#fff;">{{ savingsGoalPct }}% hoàn thành</span>
+                    <span style="font-size:12px;color:rgba(255,255,255,.8);">còn {{ savingsGoalRemainStr }}</span>
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:10px;margin-top:14px;">
+                  <div style="{{ statMini }}"><div style="font-size:11px;color:{{ c.textSec }};">Hạn mục tiêu</div><div style="font-size:14px;font-weight:700;color:{{ c.text }};margin-top:4px;">31/12/2026</div></div>
+                  <div style="{{ statMini }}"><div style="font-size:11px;color:{{ c.textSec }};">TB mỗi tháng</div><div style="font-size:14px;font-weight:700;color:{{ c.text }};margin-top:4px;font-family:'IBM Plex Mono',monospace;">{{ savingsGoalAvgStr }}</div></div>
+                </div>
+
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:22px;">
+                  <div style="font-size:15px;font-weight:700;color:{{ c.text }};">Lịch sử đóng góp</div>
+                  <div style="font-size:12px;color:{{ c.textTert }};">{{ savingsGoalCount }} lần</div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+                  <sc-for list="{{ savingsGoalHistory }}" as="sg" hint-placeholder-count="6">
+                    <div style="{{ cardStyle }};padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:none;">
+                      <div style="width:42px;height:42px;border-radius:12px;background:{{ c.successLight }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <span class="msr" style="font-size:20px;color:{{ c.success }};">savings</span>
+                      </div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-size:13.5px;font-weight:600;color:{{ c.text }};">{{ sg.label }}</div>
+                        <div style="font-size:11.5px;color:{{ c.textTert }};margin-top:2px;">{{ sg.date }}</div>
+                      </div>
+                      <div style="font-size:13.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ c.success }};flex-shrink:0;">+{{ sg.amountStr }}</div>
+                    </div>
+                  </sc-for>
+                </div>
               </div>
             </div>
           </sc-if>
@@ -953,6 +1018,182 @@
                   <button onclick="{{ requestDeleteCategory }}" style="width:100%;height:48px;margin-top:10px;border-radius:16px;background:{{ c.dangerLight }};color:{{ c.danger }};border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
                     <span class="msr" style="font-size:19px;">delete</span> Xóa danh mục này
                   </button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- 10b. RECURRING TRANSACTIONS -->
+          <sc-if value="{{ isRecurring }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:96px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;justify-content:space-between;{{ headerBg }}">
+                <button onclick="{{ goProfile }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:19px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Giao dịch định kỳ</div>
+                <button onclick="{{ goRecurringCreate }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                  <span class="msr" style="font-size:26px;color:{{ headerFg }};">add</span>
+                </button>
+              </div>
+              <div style="padding:16px;">
+                <div style="font-size:12.5px;color:{{ c.textSec }};margin-bottom:14px;">Các khoản chi/thu cố định lặp lại hàng tháng, như tiền nhà hay gói đăng ký.</div>
+
+                <sc-if value="{{ isRecurringEmpty }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ emptyStyle }}">
+                    <span class="msr" style="font-size:40px;color:{{ c.textTert }};">event_repeat</span>
+                    <div style="font-size:14px;font-weight:600;color:{{ c.text }};margin-top:10px;">Chưa có giao dịch định kỳ</div>
+                    <div style="font-size:12px;color:{{ c.textSec }};margin-top:4px;">Nhấn + để thêm tiền nhà, subscription...</div>
+                  </div>
+                </sc-if>
+
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <sc-for list="{{ recurringRows }}" as="r" hint-placeholder-count="4">
+                    <button onclick="{{ r.edit }}" style="{{ cardStyle }};padding:14px;display:flex;align-items:center;gap:12px;box-shadow:none;text-align:left;width:100%;font:inherit;color:inherit;-webkit-appearance:none;appearance:none;box-sizing:border-box;cursor:pointer;">
+                      <div style="width:42px;height:42px;border-radius:12px;background:{{ r.iconBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <span class="msr" style="font-size:20px;color:{{ r.iconColor }};">{{ r.icon }}</span>
+                      </div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-size:13.5px;font-weight:600;color:{{ c.text }};">{{ r.label }}</div>
+                        <div style="font-size:11.5px;color:{{ c.textTert }};margin-top:2px;">{{ r.catLabel }} · Hàng tháng · ngày {{ r.day }}</div>
+                      </div>
+                      <div style="text-align:right;flex-shrink:0;">
+                        <div style="font-size:13.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ r.amountColor }};">{{ r.amountStr }}</div>
+                        <div style="{{ r.statusStyle }}">{{ r.statusLabel }}</div>
+                      </div>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- 10c. RECURRING TRANSACTION FORM -->
+          <sc-if value="{{ isRecurringForm }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:40px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;{{ headerBg }}">
+                <button onclick="{{ goRecurring }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;padding-right:44px;">{{ recurringFormTitle }}</div>
+              </div>
+
+              <div style="padding:16px;">
+                <div style="display:flex;gap:8px;">
+                  <button onclick="{{ setRecurringType('expense') }}" style="{{ recurringTypeExpenseStyle }}">Chi tiêu</button>
+                  <button onclick="{{ setRecurringType('income') }}" style="{{ recurringTypeIncomeStyle }}">Thu nhập</button>
+                </div>
+
+                <div style="margin-top:18px;">
+                  <div style="{{ fieldLabelStyle }}">Tên giao dịch định kỳ</div>
+                  <div style="{{ inputStyle }}">
+                    <input value="{{ recurringForm.label }}" oninput="{{ onRecurringField('label') }}" placeholder="VD: Tiền nhà, Netflix..." style="border:none;background:transparent;outline:none;font-size:14px;font-weight:500;color:{{ c.text }};width:100%;height:100%;"/>
+                  </div>
+                </div>
+
+                <div style="margin-top:14px;">
+                  <div style="{{ fieldLabelStyle }}">Danh mục</div>
+                  <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;">
+                    <sc-for list="{{ recurringCatOptions }}" as="rc" hint-placeholder-count="6">
+                      <button onclick="{{ rc.select }}" style="{{ rc.style }}">
+                        <span class="msr" style="font-size:15px;">{{ rc.icon }}</span> {{ rc.label }}
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <div style="margin-top:14px;">
+                  <div style="{{ fieldLabelStyle }}">Số tiền</div>
+                  <div style="{{ inputStyle }}">
+                    <input value="{{ recurringForm.amountDisplay }}" oninput="{{ onRecurringAmount }}" placeholder="0" style="border:none;background:transparent;outline:none;font-size:16px;font-weight:700;color:{{ c.text }};width:100%;height:100%;font-family:'IBM Plex Mono',monospace;"/>
+                    <span style="font-size:14px;color:{{ c.textTert }};">₫</span>
+                  </div>
+                </div>
+
+                <div style="margin-top:14px;">
+                  <div style="{{ fieldLabelStyle }}">Lặp lại vào ngày</div>
+                  <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;">
+                    <sc-for list="{{ recurringDayOptions }}" as="rd" hint-placeholder-count="8">
+                      <button onclick="{{ rd.select }}" style="{{ rd.style }}">{{ rd.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <div style="{{ cardStyle }};margin-top:16px;display:flex;align-items:center;justify-content:space-between;padding:14px;">
+                  <div>
+                    <div style="font-size:13.5px;font-weight:700;color:{{ c.text }};">Đang hoạt động</div>
+                    <div style="font-size:11.5px;color:{{ c.textTert }};margin-top:2px;">Tự động tạo giao dịch mỗi tháng</div>
+                  </div>
+                  <button onclick="{{ toggleRecurringActive }}" style="{{ recurringToggleStyle }}"><div style="{{ recurringToggleDotStyle }}"></div></button>
+                </div>
+
+                <button onclick="{{ saveRecurring }}" disabled="{{ recurringSaveDisabled }}" style="{{ recurringSaveBtnStyle }}">Lưu</button>
+                <sc-if value="{{ isRecurringEditing }}" hint-placeholder-val="{{ false }}">
+                  <button onclick="{{ deleteRecurring }}" style="width:100%;height:48px;margin-top:10px;border-radius:16px;background:{{ c.dangerLight }};color:{{ c.danger }};border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+                    <span class="msr" style="font-size:19px;">delete</span> Xóa giao dịch định kỳ
+                  </button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- 10d. NOTIFICATION / REMINDER CENTER -->
+          <sc-if value="{{ isNotificationCenter }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:96px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;{{ headerBg }}">
+                <button onclick="{{ goProfile }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;padding-right:44px;">Thông báo & Nhắc nhở</div>
+              </div>
+
+              <div style="padding:16px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <div style="font-size:15px;font-weight:700;color:{{ c.text }};">Gần đây</div>
+                  <a onclick="{{ markAllNotificationsRead }}" style="font-size:12.5px;font-weight:600;color:{{ c.primary }};text-decoration:none;cursor:pointer;">Đánh dấu đã đọc</a>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+                  <sc-for list="{{ notificationRows }}" as="n" hint-placeholder-count="4">
+                    <div style="{{ n.cardStyle }};display:flex;align-items:flex-start;gap:10px;">
+                      <div style="width:34px;height:34px;border-radius:10px;background:{{ n.iconBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <span class="msr" style="font-size:18px;color:{{ n.iconColor }};">{{ n.icon }}</span>
+                      </div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                          <div style="font-size:13px;font-weight:700;color:{{ c.text }};">{{ n.title }}</div>
+                          <div style="font-size:11px;color:{{ c.textTert }};flex-shrink:0;">{{ n.time }}</div>
+                        </div>
+                        <div style="font-size:12px;color:{{ c.textSec }};margin-top:2px;">{{ n.body }}</div>
+                      </div>
+                      <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}">
+                        <div style="width:8px;height:8px;border-radius:99px;background:{{ c.primary }};flex-shrink:0;margin-top:4px;"></div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <div style="font-size:15px;font-weight:700;color:{{ c.text }};margin-top:26px;">Cài đặt nhắc nhở</div>
+                <div style="{{ cardStyle }};margin-top:12px;display:flex;flex-direction:column;">
+                  <sc-for list="{{ reminderToggleRows }}" as="rt" hint-placeholder-count="3">
+                    <div style="{{ rt.rowStyle }}">
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-size:13.5px;font-weight:700;color:{{ c.text }};">{{ rt.label }}</div>
+                        <div style="font-size:11.5px;color:{{ c.textTert }};margin-top:2px;">{{ rt.desc }}</div>
+                      </div>
+                      <button onclick="{{ rt.toggle }}" style="{{ rt.toggleStyle }}"><div style="{{ rt.dotStyle }}"></div></button>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <sc-if value="{{ dailyReminderOn }}" hint-placeholder-val="{{ true }}">
+                  <div style="{{ cardStyle }};margin-top:10px;display:flex;align-items:center;justify-content:space-between;padding:14px;">
+                    <div style="font-size:13.5px;font-weight:600;color:{{ c.text }};">Giờ nhắc hàng ngày</div>
+                    <div style="display:flex;gap:6px;">
+                      <sc-for list="{{ reminderTimeOptions }}" as="tt" hint-placeholder-count="3">
+                        <button onclick="{{ tt.select }}" style="{{ tt.style }}">{{ tt.label }}</button>
+                      </sc-for>
+                    </div>
+                  </div>
                 </sc-if>
               </div>
             </div>
@@ -1298,7 +1539,7 @@
         <!-- day bottom sheet (fixed to phone frame, not scroll content) -->
         <sc-if value="{{ isCalendar }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute;left:0;right:0;bottom:0;top:0;background:rgba(0,0,0,{{ dayScrimOpacity }});pointer-events:{{ dayScrimPointer }};transition:background .25s;z-index:80;" onclick="{{ closeDay }}"></div>
-          <div style="position:absolute;left:0;right:0;bottom:0;background:{{ c.surface }};border-radius:28px 28px 0 0;padding:12px 16px 24px;min-height:38%;max-height:80%;display:flex;flex-direction:column;transform:translateY({{ daySheetOffset }});transition:transform .28s ease;z-index:90;box-shadow:0 -12px 30px rgba(0,0,0,.15);">
+          <div style="position:absolute;left:0;right:0;bottom:0;background:{{ c.surface }};border-radius:28px 28px 0 0;padding:12px 16px 24px;max-height:80%;display:flex;flex-direction:column;transform:translateY({{ daySheetOffset }});transition:transform .28s ease;z-index:90;box-shadow:0 -12px 30px rgba(0,0,0,.15);">
             <div style="width:40px;height:5px;border-radius:99px;background:{{ c.border }};margin:0 auto 14px;flex-shrink:0;"></div>
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0;">
               <div>
@@ -1348,34 +1589,34 @@
 
         <!-- date picker bottom sheet -->
         <sc-if value="{{ isAddTx }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute;left:0;right:0;bottom:0;top:0;background:rgba(0,0,0,{{ dateScrimOpacity }});pointer-events:{{ dateScrimPointer }};transition:background .25s;z-index:100;" onclick="{{ toggleDatePicker }}"></div>
-          <div style="position:absolute;left:0;right:0;bottom:0;background:{{ c.surface }};border-radius:28px 28px 0 0;padding:14px 20px 28px;transform:translateY({{ dateSheetOffset }});transition:transform .28s ease;z-index:110;box-shadow:0 -12px 30px rgba(0,0,0,.15);">
-            <div style="width:36px;height:4px;border-radius:99px;background:{{ c.border }};margin:0 auto 14px;"></div>
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <div style="font-size:15px;font-weight:700;color:{{ c.text }};">Chọn ngày</div>
-              <button onclick="{{ toggleDatePicker }}" style="width:32px;height:32px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-                <span class="msr" style="font-size:18px;color:{{ c.text }};">close</span>
-              </button>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;">
-              <button onclick="{{ txPrevMonth }}" style="width:34px;height:34px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-                <span class="msr" style="font-size:18px;color:{{ c.text }};">chevron_left</span>
-              </button>
-              <div style="font-size:14px;font-weight:700;color:{{ c.text }};">{{ txPickerMonthLabel }}</div>
-              <button onclick="{{ txNextMonth }}" style="width:34px;height:34px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-                <span class="msr" style="font-size:18px;color:{{ c.text }};">chevron_right</span>
-              </button>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px;">
-              <sc-for list="{{ txPickerWeekdayLabels }}" as="wd2" hint-placeholder-count="7">
-                <div style="text-align:center;font-size:11px;font-weight:700;color:{{ c.textTert }};">{{ wd2 }}</div>
-              </sc-for>
-              <sc-for list="{{ txPickerBlanks }}" as="pb" hint-placeholder-count="2">
-                <div></div>
-              </sc-for>
-              <sc-for list="{{ txPickerDays }}" as="pd" hint-placeholder-count="30">
-                <button onclick="{{ pd.select }}" style="{{ pd.style }}">{{ pd.day }}</button>
-              </sc-for>
+          <div style="position:absolute;left:0;right:0;bottom:0;top:0;background:rgba(0,0,0,{{ dateScrimOpacity }});pointer-events:{{ dateScrimPointer }};transition:background .25s;z-index:100;display:flex;align-items:center;justify-content:center;padding:0 24px;" onclick="{{ toggleDatePicker }}">
+            <div style="position:relative;z-index:101;width:100%;max-width:320px;background:{{ c.surface }};border-radius:22px;padding:18px 18px 20px;transform:scale({{ dateSheetScale }});opacity:{{ dateDialogOpacity }};transition:transform .22s ease,opacity .22s ease;box-shadow:0 20px 44px rgba(0,0,0,.28);" onclick="{{ stopClick }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-size:15px;font-weight:700;color:{{ c.text }};">Chọn ngày</div>
+                <button onclick="{{ toggleDatePicker }}" style="width:32px;height:32px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                  <span class="msr" style="font-size:18px;color:{{ c.text }};">close</span>
+                </button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;">
+                <button onclick="{{ txPrevMonth }}" style="width:34px;height:34px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                  <span class="msr" style="font-size:18px;color:{{ c.text }};">chevron_left</span>
+                </button>
+                <div style="font-size:14px;font-weight:700;color:{{ c.text }};">{{ txPickerMonthLabel }}</div>
+                <button onclick="{{ txNextMonth }}" style="width:34px;height:34px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                  <span class="msr" style="font-size:18px;color:{{ c.text }};">chevron_right</span>
+                </button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px;">
+                <sc-for list="{{ txPickerWeekdayLabels }}" as="wd2" hint-placeholder-count="7">
+                  <div style="text-align:center;font-size:11px;font-weight:700;color:{{ c.textTert }};">{{ wd2 }}</div>
+                </sc-for>
+                <sc-for list="{{ txPickerBlanks }}" as="pb" hint-placeholder-count="2">
+                  <div></div>
+                </sc-for>
+                <sc-for list="{{ txPickerDays }}" as="pd" hint-placeholder-count="30">
+                  <button onclick="{{ pd.select }}" style="{{ pd.style }}">{{ pd.day }}</button>
+                </sc-for>
+              </div>
             </div>
           </div>
         </sc-if>
@@ -1480,6 +1721,7 @@ class Component extends DCLogic {
     editBudgetCat: null, editBudgetAmount: '', budgetOverrides: {}, deletedBudgetCats: [],
     categories: null, catFormId: null, catFormName: '', catFormIcon: 'restaurant', catFormColor: '#4F46E5', iconGroup: 'Ăn uống',
     otp: '', scrollY: 0,
+    reminderSettings: {dailyExpense:true, budgetAlert:true, recurringAlert:false, dailyTime:'20:00'},
     profile: {ho:'Nguyễn', ten:'Minh Anh', phone:'0901234567', email:'minhanh@email.com', address:''},
     editProfileForm: {ho:'Nguyễn', ten:'Minh Anh', phone:'0901234567', email:'minhanh@email.com', address:''},
   };
@@ -1529,6 +1771,27 @@ class Component extends DCLogic {
     {id:13, type:'income', cat:'bonus', label:'Bonus Q2', date:'05/07', amount:2000000},
     {id:14, type:'expense', cat:'transport', label:'Đổ xăng', date:'02/07', amount:120000},
   ];
+  notifications = [
+    {icon:'warning', tone:'warning', title:'Cảnh báo ngân sách', body:'Bạn đã dùng 85% ngân sách Ăn uống tháng này.', time:'2 giờ trước', unread:true},
+    {icon:'edit_note', tone:'primary', title:'Nhắc nhập chi tiêu', body:'Hôm nay bạn chưa ghi lại khoản chi nào.', time:'5 giờ trước', unread:true},
+    {icon:'event_repeat', tone:'success', title:'Giao dịch định kỳ', body:'Đã tự động tạo giao dịch "Tiền nhà" 6.000.000 ₫.', time:'Hôm qua', unread:false},
+    {icon:'flag', tone:'success', title:'Mục tiêu tiết kiệm', body:'Bạn đã hoàn thành 53% mục tiêu tiết kiệm 2026.', time:'2 ngày trước', unread:false},
+  ];
+  recurringItems = [
+    {id:'rec1', label:'Tiền nhà', type:'expense', catId:'family', amount:6000000, day:1, active:true},
+    {id:'rec2', label:'Netflix', type:'expense', catId:'entertainment', amount:180000, day:5, active:true},
+    {id:'rec3', label:'Gói gym', type:'expense', catId:'health', amount:500000, day:10, active:false},
+  ];
+  savingsGoalData = { target: 300000000, current: 159000000, deadline: '31/12/2026' };
+  savingsGoalHistory = [
+    {label:'Đóng góp tháng 6', date:'30/06/2026', amount:26500000},
+    {label:'Đóng góp tháng 5', date:'31/05/2026', amount:24800000},
+    {label:'Đóng góp tháng 4', date:'30/04/2026', amount:22000000},
+    {label:'Thưởng dự án', date:'15/04/2026', amount:15000000},
+    {label:'Đóng góp tháng 3', date:'31/03/2026', amount:23400000},
+    {label:'Đóng góp tháng 2', date:'28/02/2026', amount:21900000},
+    {label:'Đóng góp tháng 1', date:'31/01/2026', amount:25400000},
+  ];
   budgets = [
     {cat:'food', label:'Ăn uống', icon:'restaurant', color:'#4F46E5', budget:5000000, used:4250000},
     {cat:'shopping', label:'Shopping', icon:'shopping_bag', color:'#F59E0B', budget:3000000, used:2860000},
@@ -1563,6 +1826,10 @@ class Component extends DCLogic {
     budgetEdit: {num:'9c', title:'Edit Budget', purpose:'Điều chỉnh hoặc xóa hạn mức của một danh mục đã thiết lập.', flow:'Từ Budget → chạm vào card danh mục → sửa hạn mức (nhập tay hoặc chọn preset) → Cập nhật → về Budget, progress & màu card cập nhật ngay. Hoặc chạm "Xóa ngân sách này" → dialog xác nhận → danh mục biến mất khỏi danh sách.', components:'Category summary card (read-only), Filled TextField (số tiền), Chip presets, Primary Button, Destructive Button, Delete Dialog (dùng lại).', states:'Nút Cập nhật disabled khi hạn mức = 0. Cảnh báo inline khi hạn mức mới thấp hơn số đã chi (danh mục sẽ hiển thị vượt ngân sách).', notes:'Danh mục & số đã chi là read-only ở đây — muốn đổi danh mục thì xóa và tạo mới, tránh làm sai lệch dữ liệu chi tiêu đã ghi.'},
     budgetAdd: {num:'9b', title:'Add Budget', purpose:'Thiết lập ngân sách mới cho một danh mục chưa có hạn mức.', flow:'Từ Budget → chạm + → chọn danh mục → nhập hạn mức tháng → Lưu ngân sách → về Budget với card mới.', components:'Category Card Grid (dùng lại), Filled TextField (số tiền), Primary Button (disabled tới khi hợp lệ).', states:'Nút Lưu disabled khi thiếu danh mục hoặc số tiền = 0.', notes:'Trình bày dạng full-screen push (không phải bottom sheet) vì đây là hành động thiết lập, không phải ghi nhanh.'},
     incomeMgmt: {num:10, title:'Income Management', purpose:'Quản lý riêng các nguồn thu, lọc theo tháng.', flow:'Lọc theo Month chip → xem danh sách → chạm dòng để sửa, vuốt để xoá (giống Transaction History).', components:'Chip (filter tháng), Income Item, FAB nhỏ (add_circle).', states:'Empty khi tháng đó chưa có thu nhập nào ghi nhận.', notes:'Số tiền luôn màu success (#22C55E / #34D399 dark) vì đây là màn hình chỉ hiển thị thu nhập.'},
+    recurring: {num:'10b', title:'Recurring Transaction', purpose:'Quản lý các khoản chi/thu cố định lặp lại hàng tháng (tiền nhà, subscription), tránh phải nhập tay lại mỗi tháng.', flow:'Từ Profile → Giao dịch định kỳ → xem danh sách → chạm dòng để sửa, hoặc + để thêm mới.', components:'Transaction Item (biến thể có badge trạng thái), FAB nhỏ (add).', states:'Empty khi chưa thiết lập giao dịch định kỳ nào.', notes:'Badge "Đang hoạt động/Đã tạm dừng" giúp phân biệt khoản đang tự động tạo giao dịch với khoản đã tắt.'},
+    recurringForm: {num:'10c', title:'Recurring Transaction Form', purpose:'Thêm hoặc sửa một giao dịch định kỳ: loại, danh mục, số tiền, ngày lặp và trạng thái hoạt động.', flow:'Chọn loại Chi tiêu/Thu nhập → chọn danh mục → nhập số tiền → chọn ngày lặp lại trong tháng → Lưu.', components:'Segmented control (loại), Category chip, Filled TextField, Day picker chip, Toggle switch, Primary Button, Delete Dialog.', states:'Nút Lưu disabled khi thiếu tên hoặc số tiền.', notes:'Khi Sửa có thêm nút Xoá giao dịch định kỳ ở cuối form.'},
+    notificationCenter: {num:'10d', title:'Notification/Reminder Center', purpose:'Xem lại thông báo gần đây và cấu hình các loại nhắc nhở tự động (nhập chi tiêu hàng ngày, gần vượt ngân sách, giao dịch định kỳ).', flow:'Từ Profile → Thông báo & Nhắc nhở → xem danh sách thông báo → cuộn xuống bật/tắt từng loại nhắc nhở → chọn giờ nhắc hàng ngày.', components:'Notification Card, Toggle switch, Time chip, Text link (Đánh dấu đã đọc).', states:'Chấm xanh đánh dấu thông báo chưa đọc; card đã đọc mờ hơn.', notes:'Cần Push Notification service (FCM) ở backend + bảng cấu hình nhắc nhở theo user để hiện thực hoá.'},
+    savingsGoal: {num:'4b', title:'Savings Goal Detail/History', purpose:'Xem chi tiết tiến độ một mục tiêu tiết kiệm và lịch sử các lần đóng góp.', flow:'Từ Dashboard → chạm card Mục tiêu tiết kiệm → xem % hoàn thành, hạn mục tiêu, TB/tháng → cuộn xem lịch sử đóng góp.', components:'Statistic Card (gradient, dùng lại style Tiết kiệm tháng này), Progress Bar lớn, Statistic Card mini x2, Transaction Item (biến thể đóng góp).', states:'Không có Empty (luôn có ít nhất mục tiêu mặc định); Loading dùng skeleton list cho lịch sử.', notes:'Progress Bar và số % đồng bộ với card tóm tắt ở Dashboard.'},
     history: {num:11, title:'Transaction History', purpose:'Tra cứu toàn bộ giao dịch với tìm kiếm & lọc chi tiết.', flow:'Gõ từ khoá hoặc mở bộ lọc (Ngày / Danh mục / Khoảng tiền / Loại) → danh sách cập nhật → vuốt item để Sửa/Xoá.', components:'Search Bar, Filter chips panel, Transaction Item (dùng chung Dashboard).', states:'Empty state riêng cho "không có kết quả tìm kiếm" (khác empty state Dashboard). Loading dùng skeleton list.', notes:'Filter panel expand/collapse 200ms. Trong bản Flutter, item hỗ trợ swipe-to-reveal Edit/Delete thật; ở đây minh hoạ bằng icon tĩnh.'},
     profile: {num:12, title:'Profile', purpose:'Trung tâm quản lý tài khoản & tuỳ chọn cá nhân.', flow:'Xem thông tin → bật/tắt Dark mode ngay tại đây → vào Budget / Income / Settings / Đăng xuất.', components:'Avatar, Profile Menu item, Toggle switch, Secondary Button (Đăng xuất).', states:'Không có Empty; Loading chỉ ở avatar khi đang tải ảnh (skeleton tròn).', notes:'Toggle Dark mode ở đây đổi theme tức thì toàn app — cùng cơ chế với toggle ở sidebar prototype này.'},
     settings: {num:13, title:'Settings', purpose:'Các thiết lập hệ thống ít dùng hơn, tách khỏi Profile để menu chính gọn.', flow:'Từ Profile → Settings → chọn từng mục (Theme/Language/Backup/Privacy/About/Feedback/Terms).', components:'Profile Menu item (dùng lại), Section list.', states:'Không có Empty/Loading — nội dung tĩnh.', notes:'Page transition slide-from-right khi vào từ Profile, back mượt cùng easing.'},
@@ -1584,12 +1851,50 @@ class Component extends DCLogic {
     this._t = setTimeout(()=>{ if(this.state.screen==='splash') this.setState({screen:'languageSelect'}); }, 2200);
   };
   goDashboard = () => this.setState({screen:'dashboard'});
+  goSavingsGoal = () => this.setState({screen:'savingsGoal'});
   goLogin = () => this.setState({screen:'login'});
   goRegister = () => this.setState({screen:'register'});
   goCalendar = () => this.setState({screen:'calendar'});
   goReports = () => this.setState({screen:'reports'});
   goProfile = () => this.setState({screen:'profile'});
   goSettings = () => this.setState({screen:'settings'});
+  goRecurring = () => this.setState({screen:'recurring'});
+  goNotificationCenter = () => this.setState({screen:'notificationCenter'});
+  markAllNotificationsRead = () => { this.notifications.forEach(n=>n.unread=false); this.forceUpdate(); };
+  toggleReminder = (key) => () => this.setState({reminderSettings:{...this.state.reminderSettings, [key]:!this.state.reminderSettings[key]}});
+  selectReminderTime = (time) => () => this.setState({reminderSettings:{...this.state.reminderSettings, dailyTime:time}});
+  goRecurringCreate = () => this.setState({screen:'recurringForm', recurringEditId:null,
+    recurringForm:{label:'', type:'expense', catId:'food', amount:0, amountDisplay:'', day:1, active:true}});
+  setRecurringType = (type) => () => this.setState({recurringForm:{...this.state.recurringForm, type}});
+  onRecurringField = (key) => (e) => this.setState({recurringForm:{...this.state.recurringForm, [key]:e.target.value}});
+  onRecurringAmount = (e) => {
+    const digits = e.target.value.replace(/\D/g,'');
+    const amount = digits ? parseInt(digits,10) : 0;
+    this.setState({recurringForm:{...this.state.recurringForm, amount, amountDisplay: amount ? amount.toLocaleString('vi-VN') : ''}});
+  };
+  selectRecurringCat = (catId) => () => this.setState({recurringForm:{...this.state.recurringForm, catId}});
+  selectRecurringDay = (day) => () => this.setState({recurringForm:{...this.state.recurringForm, day}});
+  toggleRecurringActive = () => this.setState({recurringForm:{...this.state.recurringForm, active:!this.state.recurringForm.active}});
+  editRecurring = (id) => () => {
+    const r = this.recurringItems.find(x=>x.id===id);
+    this.setState({screen:'recurringForm', recurringEditId:id,
+      recurringForm:{label:r.label, type:r.type, catId:r.catId, amount:r.amount, amountDisplay:r.amount.toLocaleString('vi-VN'), day:r.day, active:r.active}});
+  };
+  saveRecurring = () => {
+    const f = this.state.recurringForm;
+    if (!f.label || !f.amount) return;
+    if (this.state.recurringEditId) {
+      const idx = this.recurringItems.findIndex(x=>x.id===this.state.recurringEditId);
+      this.recurringItems[idx] = {...this.recurringItems[idx], ...f};
+    } else {
+      this.recurringItems.push({id:'rec'+Date.now(), ...f});
+    }
+    this.setState({screen:'recurring'});
+  };
+  deleteRecurring = () => {
+    this.recurringItems = this.recurringItems.filter(x=>x.id!==this.state.recurringEditId);
+    this.setState({screen:'recurring'});
+  };
   goBudget = () => this.setState({screen:'budget'});
   goIncomeMgmt = () => this.setState({screen:'incomeMgmt'});
   goHistory = () => this.setState({screen:'history'});
@@ -1935,12 +2240,14 @@ class Component extends DCLogic {
       const isSel = s.txDate.getFullYear()===s.txPickerViewDate.getFullYear() && s.txDate.getMonth()===s.txPickerViewDate.getMonth() && s.txDate.getDate()===day;
       const isTod = today.getFullYear()===s.txPickerViewDate.getFullYear() && today.getMonth()===s.txPickerViewDate.getMonth() && today.getDate()===day;
       return { day, select: () => this.selectTxDate(day),
-        style: `aspect-ratio:1;border-radius:8px;border:${isTod && !isSel ? `1px solid ${c.primary}` : 'none'};background:${isSel?c.primary:'transparent'};color:${isSel?'#fff':c.text};font-size:12px;font-weight:600;cursor:pointer;` };
+        style: `aspect-ratio:1;border-radius:12px;border:${isTod && !isSel ? `2px solid ${c.primary}` : 'none'};background:${isSel?c.primary:(isTod?c.primaryLight:c.surfaceAlt)};color:${isSel?'#fff':(isTod?c.primary:c.text)};font-size:12.5px;font-weight:700;cursor:pointer;` };
     });
 
+    // Prototype-only: vary spend per category across months so the month switcher shows real change.
+    const monthUsedFactor = [0.72, 0.91, 1.08, 0.85, 1.0, 0.63, 1.15][((s.monthOffset%7)+7)%7];
     const activeBudgets = this.budgets
       .filter(b => !s.deletedBudgetCats.includes(b.cat))
-      .map(b => ({...b, budget: s.budgetOverrides[b.cat] ?? b.budget}));
+      .map(b => ({...b, budget: s.budgetOverrides[b.cat] ?? b.budget, used: s.monthOffset===0 ? b.used : Math.round(b.used*monthUsedFactor/1000)*1000}));
     const budgetItems = activeBudgets.map(b=>{
       const pct = Math.round(b.used/b.budget*100);
       const over = pct>100;
@@ -1993,6 +2300,8 @@ class Component extends DCLogic {
       {icon:'account_balance_wallet', label:'Ngân sách', value:'', go:this.goBudget},
       {icon:'category', label:'Danh mục', value:'', go:this.goCategoryList},
       {icon:'savings', label:'Quản lý thu nhập', value:'', go:this.goIncomeMgmt},
+      {icon:'event_repeat', label:'Giao dịch định kỳ', value:'', go:this.goRecurring},
+      {icon:'notifications', label:'Thông báo & Nhắc nhở', value:'', go:this.goNotificationCenter},
       {icon:'settings', label:'Cài đặt', value:'', go:this.goSettings},
     ];
     const rowStyleAt = (i) => `display:flex;align-items:center;gap:12px;padding:13px 10px;${i>0?`border-top:1px solid ${c.border}`:''}`;
@@ -2076,18 +2385,22 @@ class Component extends DCLogic {
         select: () => this.selectOnboardingLanguage(lo.key) };
     });
 
-    const screenIcons = { splash:'flash_on', login:'login', register:'person_add', dashboard:'home', addTxE:'add_circle', addTxI:'trending_up', calendar:'calendar_month', reports:'bar_chart', budget:'account_balance_wallet', incomeMgmt:'savings', history:'receipt_long', profile:'person', settings:'settings' };
+    const screenIcons = { splash:'flash_on', login:'login', register:'person_add', dashboard:'home', addTxE:'add_circle', addTxI:'trending_up', calendar:'calendar_month', reports:'bar_chart', budget:'account_balance_wallet', incomeMgmt:'savings', recurring:'event_repeat', history:'receipt_long', profile:'person', settings:'settings' };
     const rawList = [
       {num:1,label:'Splash',key:'splash',icon:screenIcons.splash,go:this.restartSplash},
       {num:2,label:'Login',key:'login',icon:screenIcons.login,go:this.goLogin},
       {num:3,label:'Register',key:'register',icon:screenIcons.register,go:this.goRegister},
       {num:4,label:'Dashboard',key:'dashboard',icon:screenIcons.dashboard,go:this.goDashboard},
+      {num:'4b',label:'Savings Goal',key:'savingsGoal',icon:'flag',go:this.goSavingsGoal},
       {num:5,label:'Add Expense',key:'addTx',icon:screenIcons.addTxE,go:()=>this.goAddTx('expense')},
       {num:6,label:'Add Income',key:'addTx',icon:screenIcons.addTxI,go:()=>this.goAddTx('income')},
       {num:7,label:'Calendar',key:'calendar',icon:screenIcons.calendar,go:this.goCalendar},
       {num:8,label:'Reports',key:'reports',icon:screenIcons.reports,go:this.goReports},
       {num:9,label:'Budget',key:'budget',icon:screenIcons.budget,go:this.goBudget},
       {num:10,label:'Income Mgmt',key:'incomeMgmt',icon:screenIcons.incomeMgmt,go:this.goIncomeMgmt},
+      {num:'10b',label:'Recurring',key:'recurring',icon:screenIcons.recurring,go:this.goRecurring},
+      {num:'10c',label:'Recurring Form',key:'recurringForm',icon:screenIcons.recurring,go:this.goRecurringCreate},
+      {num:'10d',label:'Notifications',key:'notificationCenter',icon:'notifications',go:this.goNotificationCenter},
       {num:11,label:'History',key:'history',icon:screenIcons.history,go:this.goHistory},
       {num:12,label:'Profile',key:'profile',icon:screenIcons.profile,go:this.goProfile},
       {num:13,label:'Settings',key:'settings',icon:screenIcons.settings,go:this.goSettings},
@@ -2148,6 +2461,68 @@ class Component extends DCLogic {
       isReports: screen==='reports', isBudget: screen==='budget', isIncomeMgmt: screen==='incomeMgmt',
       isHistory: screen==='history', isProfile: screen==='profile', isSettings: screen==='settings',
       isForgotPassword: screen==='forgotPassword', isBudgetAdd: screen==='budgetAdd',
+      budgetMonthLabel: calendarMonthLabel,
+      isRecurring: screen==='recurring', isRecurringForm: screen==='recurringForm',
+      isRecurringEmpty: this.recurringItems.length===0, isRecurringEditing: !!this.state.recurringEditId,
+      goRecurring:this.goRecurring, goRecurringCreate:this.goRecurringCreate,
+      recurringFormTitle: this.state.recurringEditId ? 'Sửa giao dịch định kỳ' : 'Thêm giao dịch định kỳ',
+      setRecurringType:this.setRecurringType, onRecurringField:this.onRecurringField, onRecurringAmount:this.onRecurringAmount,
+      recurringForm: this.state.recurringForm||{label:'',type:'expense',catId:'food',amount:0,amountDisplay:'',day:1,active:true},
+      toggleRecurringActive:this.toggleRecurringActive, saveRecurring:this.saveRecurring, deleteRecurring:this.deleteRecurring,
+      recurringSaveDisabled: !(this.state.recurringForm && this.state.recurringForm.label && this.state.recurringForm.amount),
+      recurringSaveBtnStyle: `${btnPrimary};margin-top:22px;${(!this.state.recurringForm||!this.state.recurringForm.label||!this.state.recurringForm.amount)?'opacity:.5;pointer-events:none;':''}`,
+      recurringTypeExpenseStyle: `flex:1;height:42px;border-radius:14px;border:none;font-size:13.5px;font-weight:700;cursor:pointer;background:${(this.state.recurringForm||{}).type!=='income'?c.danger:c.surfaceAlt};color:${(this.state.recurringForm||{}).type!=='income'?'#fff':c.textSec};`,
+      recurringTypeIncomeStyle: `flex:1;height:42px;border-radius:14px;border:none;font-size:13.5px;font-weight:700;cursor:pointer;background:${(this.state.recurringForm||{}).type==='income'?c.success:c.surfaceAlt};color:${(this.state.recurringForm||{}).type==='income'?'#fff':c.textSec};`,
+      recurringCatOptions: Component.DEFAULT_CATEGORIES.map(cg => ({
+        icon: cg.icon, label: cg.label, select: this.selectRecurringCat(cg.id),
+        style: `display:flex;align-items:center;gap:5px;flex-shrink:0;padding:9px 13px;border-radius:12px;border:1.5px solid ${(this.state.recurringForm||{}).catId===cg.id?c.primary:c.border};background:${(this.state.recurringForm||{}).catId===cg.id?c.primaryLight:c.surface};color:${(this.state.recurringForm||{}).catId===cg.id?c.primary:c.textSec};font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;`,
+      })),
+      recurringDayOptions: Array.from({length:28},(_,i)=>i+1).map(d => ({
+        label: String(d), select: this.selectRecurringDay(d),
+        style: `flex-shrink:0;width:38px;height:38px;border-radius:11px;border:1.5px solid ${(this.state.recurringForm||{}).day===d?c.primary:c.border};background:${(this.state.recurringForm||{}).day===d?c.primary:c.surface};color:${(this.state.recurringForm||{}).day===d?'#fff':c.textSec};font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;`,
+      })),
+      recurringToggleStyle: `width:46px;height:26px;border-radius:99px;border:none;padding:3px;cursor:pointer;background:${(this.state.recurringForm||{}).active?c.primary:c.surfaceAlt};display:flex;align-items:center;justify-content:${(this.state.recurringForm||{}).active?'flex-end':'flex-start'};transition:background .2s ease;`,
+      recurringToggleDotStyle: `width:20px;height:20px;border-radius:99px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);`,
+      recurringRows: this.recurringItems.map(r => {
+        const cg = catMap[r.catId] || {};
+        return {
+          id:r.id, label:r.label, icon:cg.icon||'category', catLabel:cg.label||'', day:r.day,
+          iconBg: r.type==='income'?c.successLight:c.primaryLight, iconColor: r.type==='income'?c.success:c.primary,
+          amountStr: (r.type==='income'?'+':'-')+this.fmt(r.amount)+' ₫', amountColor: r.type==='income'?c.success:c.danger,
+          statusLabel: r.active?'Đang hoạt động':'Đã tạm dừng', statusStyle: `font-size:10.5px;font-weight:700;margin-top:3px;color:${r.active?c.success:c.textTert};`,
+          edit: this.editRecurring(r.id),
+        };
+      }),
+      isNotificationCenter: screen==='notificationCenter', goNotificationCenter:this.goNotificationCenter,
+      markAllNotificationsRead:this.markAllNotificationsRead,
+      notificationRows: this.notifications.map(n => {
+        const toneMap = {warning:[c.warning,c.warningLight], primary:[c.primary,c.primaryLight], success:[c.success,c.successLight]};
+        const [fg,bg] = toneMap[n.tone]||[c.primary,c.primaryLight];
+        return {...n, iconColor:fg, iconBg:bg, cardStyle:`${cardStyle};box-shadow:none;${n.unread?`border:1px solid ${c.border};`:'opacity:.72;'}`};
+      }),
+      dailyReminderOn: this.state.reminderSettings.dailyExpense,
+      reminderToggleRows: [
+        {key:'dailyExpense', label:'Nhắc nhập chi tiêu hàng ngày', desc:'Nhắc bạn ghi lại chi tiêu nếu chưa nhập gì trong ngày.'},
+        {key:'budgetAlert', label:'Cảnh báo gần vượt ngân sách', desc:'Báo khi một danh mục đã dùng trên 80% hạn mức.'},
+        {key:'recurringAlert', label:'Nhắc giao dịch định kỳ', desc:'Báo khi hệ thống vừa tự động tạo một giao dịch định kỳ.'},
+      ].map((rt,i) => ({
+        ...rt, toggle: this.toggleReminder(rt.key),
+        rowStyle: `display:flex;align-items:center;gap:12px;padding:13px 14px;${i>0?`border-top:1px solid ${c.border}`:''}`,
+        toggleStyle: `width:46px;height:26px;border-radius:99px;border:none;padding:3px;cursor:pointer;flex-shrink:0;background:${this.state.reminderSettings[rt.key]?c.primary:c.surfaceAlt};display:flex;align-items:center;justify-content:${this.state.reminderSettings[rt.key]?'flex-end':'flex-start'};transition:background .2s ease;`,
+        dotStyle: `width:20px;height:20px;border-radius:99px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);`,
+      })),
+      reminderTimeOptions: ['08:00','12:00','20:00'].map(t => ({
+        label:t, select:this.selectReminderTime(t),
+        style:`padding:6px 12px;border-radius:10px;border:1.5px solid ${this.state.reminderSettings.dailyTime===t?c.primary:c.border};background:${this.state.reminderSettings.dailyTime===t?c.primaryLight:c.surface};color:${this.state.reminderSettings.dailyTime===t?c.primary:c.textSec};font-size:12px;font-weight:700;cursor:pointer;`,
+      })),
+      isSavingsGoal: screen==='savingsGoal', goSavingsGoal:this.goSavingsGoal,
+      savingsGoalCurrentStr: this.fmt(this.savingsGoalData.current)+' ₫',
+      savingsGoalTargetStr: this.fmt(this.savingsGoalData.target)+' ₫',
+      savingsGoalPct: Math.round(this.savingsGoalData.current/this.savingsGoalData.target*100),
+      savingsGoalRemainStr: this.fmt(this.savingsGoalData.target-this.savingsGoalData.current)+' ₫',
+      savingsGoalAvgStr: this.fmt(Math.round(this.savingsGoalHistory.reduce((a,h)=>a+h.amount,0)/this.savingsGoalHistory.length))+' ₫',
+      savingsGoalCount: this.savingsGoalHistory.length,
+      savingsGoalHistory: this.savingsGoalHistory.map(h => ({...h, amountStr: this.fmt(h.amount)+' ₫'})),
       isBudgetEdit: screen==='budgetEdit', goBudgetEdit:this.goBudgetEdit, onEditBudgetAmountInput:this.onEditBudgetAmountInput,
       saveBudgetEdit:this.saveBudgetEdit, requestDeleteBudget:this.requestDeleteBudget, budgetPresets,
       editBudgetLabel: editB.label || '', editBudgetIcon: editB.icon || 'category', editBudgetColor: editB.color || c.primary,
@@ -2273,7 +2648,8 @@ class Component extends DCLogic {
       isDatePickerOpen: s.datePickerOpen, txDateLabel, dateChevronIcon: s.datePickerOpen?'expand_less':'expand_more',
       txPickerMonthLabel, txPickerWeekdayLabels: weekdayLabels, txPickerBlanks, txPickerDays,
       dateScrimOpacity: s.datePickerOpen ? 0.45 : 0, dateScrimPointer: s.datePickerOpen ? 'auto' : 'none',
-      dateSheetOffset: s.datePickerOpen ? '0%' : '110%',
+      dateSheetScale: s.datePickerOpen ? 1 : 0.92,
+      dateDialogOpacity: s.datePickerOpen ? 1 : 0,
 
       dayScrimOpacity: s.dayModalOpen ? 0.45 : 0, dayScrimPointer: s.dayModalOpen ? 'auto' : 'none',
       daySheetOffset: s.dayModalOpen ? '0%' : '110%', selectedDayLabel: s.selectedDay || '—',
