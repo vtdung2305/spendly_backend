@@ -41,6 +41,10 @@ async function bootstrap() {
 
   // const port = config.get<number>('port') ?? 3000;
   const port = Number(process.env.PORT) || 3000;
+  console.log('Before listen');
+
   await app.listen(port, '0.0.0.0');
+
+  console.log('After listen');
 }
 bootstrap();
