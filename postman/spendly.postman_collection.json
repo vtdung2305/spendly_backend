@@ -3573,21 +3573,193 @@
               "description": "",
               "item": [
                 {
-                  "name": "{year}",
+                  "id": "82334ef5-abb4-48e0-9f44-8eed3dff3473",
+                  "name": "List all of the current user's savings goals",
+                  "request": {
+                    "name": "List all of the current user's savings goals",
+                    "description": {},
+                    "url": {
+                      "path": [
+                        "api",
+                        "v1",
+                        "savings-goals"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "method": "GET",
+                    "body": {},
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{bearerToken}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "a07094f8-2d13-4c36-bd61-b64ac30407a5",
+                      "name": "200",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "savings-goals"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {}
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "header": [],
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    }
+                  ],
+                  "event": [],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  }
+                },
+                {
+                  "id": "5d8eae57-9f01-416e-9930-cd2283d8629b",
+                  "name": "Create a new savings goal",
+                  "request": {
+                    "name": "Create a new savings goal",
+                    "description": {},
+                    "url": {
+                      "path": [
+                        "api",
+                        "v1",
+                        "savings-goals"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"<string>\",\n  \"targetAmount\": \"<number>\",\n  \"deadline\": \"<date>\",\n  \"initialAmount\": \"<number>\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{bearerToken}}"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ]
+                  },
+                  "response": [
+                    {
+                      "id": "91029f8c-e0ca-4b65-ad87-4e222a08b853",
+                      "name": "200",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "savings-goals"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"<string>\",\n  \"targetAmount\": \"<number>\",\n  \"deadline\": \"<date>\",\n  \"initialAmount\": \"<number>\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "header": [],
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    }
+                  ],
+                  "event": [],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  }
+                },
+                {
+                  "name": "{id}",
                   "description": "",
                   "item": [
                     {
-                      "id": "fd95e06e-ecfd-4d40-9eed-3e0c666062ad",
-                      "name": "Get the savings goal and current progress for a year",
+                      "id": "7616d87a-f174-42e4-843e-50cd8fc93e35",
+                      "name": "Get a savings goal detail: progress, deadline, and monthly contribution history",
                       "request": {
-                        "name": "Get the savings goal and current progress for a year",
+                        "name": "Get a savings goal detail: progress, deadline, and monthly contribution history",
                         "description": {},
                         "url": {
                           "path": [
                             "api",
                             "v1",
                             "savings-goals",
-                            ":year"
+                            ":id"
                           ],
                           "host": [
                             "{{baseUrl}}"
@@ -3596,8 +3768,8 @@
                           "variable": [
                             {
                               "type": "any",
-                              "value": "<number>",
-                              "key": "year",
+                              "value": "<uuid>",
+                              "key": "id",
                               "disabled": false,
                               "description": {
                                 "content": "(Required) ",
@@ -3620,7 +3792,7 @@
                       },
                       "response": [
                         {
-                          "id": "f895b5c7-ebbd-40cc-b625-6704eb408b0e",
+                          "id": "d3d0ddee-fd74-4d82-90e5-55ff6434a5c3",
                           "name": "200",
                           "originalRequest": {
                             "url": {
@@ -3628,7 +3800,7 @@
                                 "api",
                                 "v1",
                                 "savings-goals",
-                                ":year"
+                                ":id"
                               ],
                               "host": [
                                 "{{baseUrl}}"
@@ -3636,14 +3808,14 @@
                               "query": [],
                               "variable": [
                                 {
+                                  "type": "any",
+                                  "value": "<uuid>",
+                                  "key": "id",
                                   "disabled": false,
                                   "description": {
                                     "content": "(Required) ",
                                     "type": "text/plain"
-                                  },
-                                  "type": "any",
-                                  "value": "<number>",
-                                  "key": "year"
+                                  }
                                 }
                               ]
                             },
@@ -3673,17 +3845,17 @@
                       }
                     },
                     {
-                      "id": "c6163ef9-ddac-4b4b-b04a-7b58ed326a3f",
-                      "name": "Set the savings target for a year",
+                      "id": "4f54ae92-a981-408e-b686-b71cd4d8c8ff",
+                      "name": "Update an existing savings goal",
                       "request": {
-                        "name": "Set the savings target for a year",
+                        "name": "Update an existing savings goal",
                         "description": {},
                         "url": {
                           "path": [
                             "api",
                             "v1",
                             "savings-goals",
-                            ":year"
+                            ":id"
                           ],
                           "host": [
                             "{{baseUrl}}"
@@ -3692,8 +3864,8 @@
                           "variable": [
                             {
                               "type": "any",
-                              "value": "<number>",
-                              "key": "year",
+                              "value": "<uuid>",
+                              "key": "id",
                               "disabled": false,
                               "description": {
                                 "content": "(Required) ",
@@ -3702,16 +3874,10 @@
                             }
                           ]
                         },
-                        "header": [
-                          {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                          }
-                        ],
-                        "method": "PUT",
+                        "method": "PATCH",
                         "body": {
                           "mode": "raw",
-                          "raw": "{\n  \"targetAmount\": \"<number>\"\n}",
+                          "raw": "{\n  \"name\": \"<string>\",\n  \"targetAmount\": \"<number>\",\n  \"deadline\": \"<date>\",\n  \"initialAmount\": \"<number>\"\n}",
                           "options": {
                             "raw": {
                               "headerFamily": "json",
@@ -3727,11 +3893,17 @@
                               "value": "{{bearerToken}}"
                             }
                           ]
-                        }
+                        },
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ]
                       },
                       "response": [
                         {
-                          "id": "19c55cf9-f360-48aa-87e4-4d91c8e62236",
+                          "id": "6459f558-f3b6-4d86-8df3-85bccd69e0be",
                           "name": "200",
                           "originalRequest": {
                             "url": {
@@ -3739,7 +3911,7 @@
                                 "api",
                                 "v1",
                                 "savings-goals",
-                                ":year"
+                                ":id"
                               ],
                               "host": [
                                 "{{baseUrl}}"
@@ -3747,14 +3919,14 @@
                               "query": [],
                               "variable": [
                                 {
+                                  "type": "any",
+                                  "value": "<uuid>",
+                                  "key": "id",
                                   "disabled": false,
                                   "description": {
                                     "content": "(Required) ",
                                     "type": "text/plain"
-                                  },
-                                  "type": "any",
-                                  "value": "<number>",
-                                  "key": "year"
+                                  }
                                 }
                               ]
                             },
@@ -3772,10 +3944,10 @@
                                 "value": "Bearer <token>"
                               }
                             ],
-                            "method": "PUT",
+                            "method": "PATCH",
                             "body": {
                               "mode": "raw",
-                              "raw": "{\n  \"targetAmount\": \"<number>\"\n}",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"targetAmount\": \"<number>\",\n  \"deadline\": \"<date>\",\n  \"initialAmount\": \"<number>\"\n}",
                               "options": {
                                 "raw": {
                                   "headerFamily": "json",
@@ -3783,6 +3955,102 @@
                                 }
                               }
                             }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "header": [],
+                          "cookie": [],
+                          "_postman_previewlanguage": "text"
+                        }
+                      ],
+                      "event": [],
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      }
+                    },
+                    {
+                      "id": "87df842d-c989-4842-887c-0da3f8b28cd3",
+                      "name": "Delete a savings goal",
+                      "request": {
+                        "name": "Delete a savings goal",
+                        "description": {},
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "savings-goals",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "disabled": false,
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              }
+                            }
+                          ]
+                        },
+                        "method": "DELETE",
+                        "body": {},
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "id": "44caa456-ec81-4b79-ad57-abd85109da36",
+                          "name": "200",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "savings-goals",
+                                ":id"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": [
+                                {
+                                  "type": "any",
+                                  "value": "<uuid>",
+                                  "key": "id",
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  }
+                                }
+                              ]
+                            },
+                            "header": [
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "DELETE",
+                            "body": {}
                           },
                           "status": "OK",
                           "code": 200,

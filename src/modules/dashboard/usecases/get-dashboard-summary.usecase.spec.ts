@@ -44,7 +44,7 @@ describe('GetDashboardSummaryUseCase', () => {
       { category: { id: 'cat-1', name: 'Ăn uống' }, isOverBudget: false, usedPercent: 80, limitAmount: 5000000, spentAmount: 4000000 },
       { category: { id: 'cat-2', name: 'Giải trí' }, isOverBudget: true, usedPercent: 112, limitAmount: 1000000, spentAmount: 1120000 },
     ] as any);
-    getSavingsGoalUseCase.execute.mockResolvedValue({ year: 2026, targetAmount: 300000000, currentAmount: 159000000, percent: 53 });
+    getSavingsGoalUseCase.execute.mockResolvedValue({ id: 'goal-1', name: 'Mục tiêu 2026', targetAmount: 300000000, currentAmount: 159000000, percent: 53, deadline: new Date('2026-12-31') });
 
     const result = await useCase.execute('user-1', '2026-07');
 
@@ -59,7 +59,7 @@ describe('GetDashboardSummaryUseCase', () => {
     budgetsQuery.listForMonth.mockResolvedValue([
       { category: { id: 'cat-1', name: 'Ăn uống' }, isOverBudget: false, usedPercent: 50, limitAmount: 1000000, spentAmount: 500000 },
     ] as any);
-    getSavingsGoalUseCase.execute.mockResolvedValue({ year: 2026, targetAmount: 0, currentAmount: 0, percent: 0 });
+    getSavingsGoalUseCase.execute.mockResolvedValue({ id: null, name: null, targetAmount: 0, currentAmount: 0, percent: 0, deadline: null });
 
     const result = await useCase.execute('user-1', '2026-07');
 

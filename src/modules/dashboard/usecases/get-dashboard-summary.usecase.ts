@@ -26,7 +26,7 @@ export class GetDashboardSummaryUseCase {
       this.transactionsQuery.sumByTypeInRange(userId, TransactionType.EXPENSE, from, to),
       this.getDailySummaryUseCase.execute(userId, { month }),
       this.budgetsQuery.listForMonth(userId, month),
-      this.getSavingsGoalUseCase.execute(userId, year),
+      this.getSavingsGoalUseCase.execute(userId),
       this.transactionsQuery.recentForUser(userId, 10),
     ]);
 

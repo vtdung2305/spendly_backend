@@ -21,22 +21,35 @@ describe('ListSavingsGoalsUseCase', () => {
     expect(result).toEqual([]);
   });
 
-  it('computes progress independently for each goal across multiple years', async () => {
-    repo.findAllForUser.mockResolvedValue([
-      { id: 'g2027', year: 2027, targetAmount: 500000000 },
-      { id: 'g2026', year: 2026, targetAmount: 300000000 },
-    ] as any);
-    progress.computeProgress.mockImplementation(async (_u, year) =>
-      year === 2027 ? { currentAmount: 0, percent: 0 } : { currentAmount: 159000000, percent: 53 },
+  it('computes progress independently for each goal using its own createdAt/deadline window', async () => {
+    const carGoal = {
+      id: 'g-car',
+      name: 'Xe máy mới',
+      targetAmount: 500000000,
+      initialAmount: 0,
+      createdAt: new Date('2027-01-01'),
+      deadline: new Date('2027-06-30'),
+    };
+    const tripGoal = {
+      id: 'g-trip',
+      name: 'Du lịch 2026',
+      targetAmount: 300000000,
+      initialAmount: 1000000,
+      createdAt: new Date('2026-01-01'),
+      deadline: new Date('2026-12-31'),
+    };
+    repo.findAllForUser.mockResolvedValue([carGoal, tripGoal] as any);
+    progress.computeProgress.mockImplementation(async (_u, _from, deadline: Date) =>
+      deadline.getFullYear() === 2027 ? { currentAmount: 0, percent: 0 } : { currentAmount: 159000000, percent: 53 },
     );
 
     const result = await useCase.execute('user-1');
 
-    expect(progress.computeProgress).toHaveBeenCalledWith('user-1', 2027, 500000000);
-    expect(progress.computeProgress).toHaveBeenCalledWith('user-1', 2026, 300000000);
+    expect(progress.computeProgress).toHaveBeenCalledWith('user-1', carGoal.createdAt, carGoal.deadline, 500000000, 0);
+    expect(progress.computeProgress).toHaveBeenCalledWith('user-1', tripGoal.createdAt, tripGoal.deadline, 300000000, 1000000);
     expect(result).toEqual([
-      { id: 'g2027', year: 2027, targetAmount: 500000000, currentAmount: 0, percent: 0 },
-      { id: 'g2026', year: 2026, targetAmount: 300000000, currentAmount: 159000000, percent: 53 },
+      { id: 'g-car', name: 'Xe máy mới', targetAmount: 500000000, initialAmount: 0, deadline: carGoal.deadline, currentAmount: 0, percent: 0 },
+      { id: 'g-trip', name: 'Du lịch 2026', targetAmount: 300000000, initialAmount: 1000000, deadline: tripGoal.deadline, currentAmount: 159000000, percent: 53 },
     ]);
   });
 });

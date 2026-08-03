@@ -740,7 +740,10 @@
                 <button onclick="{{ goDashboard }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
                   <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
                 </button>
-                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;padding-right:44px;">Mục tiêu tiết kiệm</div>
+                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Mục tiêu tiết kiệm</div>
+                <button onclick="{{ goSavingsGoalForm }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="msr" style="font-size:26px;color:{{ headerFg }};">add</span>
+                </button>
               </div>
 
               <div style="padding:16px;">
@@ -784,6 +787,38 @@
                     </div>
                   </sc-for>
                 </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- 4c. CREATE/EDIT SAVINGS GOAL -->
+          <sc-if value="{{ isSavingsGoalForm }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:40px;">
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;gap:12px;{{ headerBg }}">
+                <button onclick="{{ goSavingsGoal }}" style="width:44px;height:44px;background:{{ headerBtnBg }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:18px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;padding-right:44px;">Thiết lập mục tiêu</div>
+              </div>
+
+              <div style="padding:16px;display:flex;flex-direction:column;gap:16px;">
+                <div>
+                  <label style="font-size:12.5px;font-weight:600;color:{{ c.textSec }};margin-bottom:6px;display:block;">Tên mục tiêu</label>
+                  <div style="{{ inputStyle }}"><input value="{{ savingsGoalFormName }}" oninput="{{ onSavingsGoalFormNameInput }}" placeholder="VD: Mục tiêu tiết kiệm 2026" style="border:none;outline:none;background:none;flex:1;font-size:14.5px;color:{{ c.text }};font-family:inherit;" /></div>
+                </div>
+                <div>
+                  <label style="font-size:12.5px;font-weight:600;color:{{ c.textSec }};margin-bottom:6px;display:block;">Số tiền mục tiêu</label>
+                  <div style="{{ inputStyle }}"><input value="{{ savingsGoalFormTarget }}" oninput="{{ onSavingsGoalFormTargetInput }}" inputmode="numeric" placeholder="0" style="border:none;outline:none;background:none;flex:1;font-size:14.5px;color:{{ c.text }};font-family:'IBM Plex Mono',monospace;" /><span style="font-size:13px;color:{{ c.textTert }};">₫</span></div>
+                </div>
+                <div>
+                  <label style="font-size:12.5px;font-weight:600;color:{{ c.textSec }};margin-bottom:6px;display:block;">Hạn hoàn thành</label>
+                  <div style="{{ inputStyle }}"><input value="{{ savingsGoalFormDeadline }}" oninput="{{ onSavingsGoalFormDeadlineInput }}" placeholder="dd/mm/yyyy" style="border:none;outline:none;background:none;flex:1;font-size:14.5px;color:{{ c.text }};font-family:inherit;" /></div>
+                </div>
+                <div>
+                  <label style="font-size:12.5px;font-weight:600;color:{{ c.textSec }};margin-bottom:6px;display:block;">Đã tiết kiệm (tuỳ chọn)</label>
+                  <div style="{{ inputStyle }}"><input value="{{ savingsGoalFormCurrent }}" oninput="{{ onSavingsGoalFormCurrentInput }}" inputmode="numeric" placeholder="0" style="border:none;outline:none;background:none;flex:1;font-size:14.5px;color:{{ c.text }};font-family:'IBM Plex Mono',monospace;" /><span style="font-size:13px;color:{{ c.textTert }};">₫</span></div>
+                </div>
+                <button onclick="{{ saveSavingsGoalForm }}" style="{{ btnPrimary }};margin-top:8px;">Lưu mục tiêu</button>
               </div>
             </div>
           </sc-if>
@@ -1829,6 +1864,7 @@ class Component extends DCLogic {
     recurring: {num:'10b', title:'Recurring Transaction', purpose:'Quản lý các khoản chi/thu cố định lặp lại hàng tháng (tiền nhà, subscription), tránh phải nhập tay lại mỗi tháng.', flow:'Từ Profile → Giao dịch định kỳ → xem danh sách → chạm dòng để sửa, hoặc + để thêm mới.', components:'Transaction Item (biến thể có badge trạng thái), FAB nhỏ (add).', states:'Empty khi chưa thiết lập giao dịch định kỳ nào.', notes:'Badge "Đang hoạt động/Đã tạm dừng" giúp phân biệt khoản đang tự động tạo giao dịch với khoản đã tắt.'},
     recurringForm: {num:'10c', title:'Recurring Transaction Form', purpose:'Thêm hoặc sửa một giao dịch định kỳ: loại, danh mục, số tiền, ngày lặp và trạng thái hoạt động.', flow:'Chọn loại Chi tiêu/Thu nhập → chọn danh mục → nhập số tiền → chọn ngày lặp lại trong tháng → Lưu.', components:'Segmented control (loại), Category chip, Filled TextField, Day picker chip, Toggle switch, Primary Button, Delete Dialog.', states:'Nút Lưu disabled khi thiếu tên hoặc số tiền.', notes:'Khi Sửa có thêm nút Xoá giao dịch định kỳ ở cuối form.'},
     notificationCenter: {num:'10d', title:'Notification/Reminder Center', purpose:'Xem lại thông báo gần đây và cấu hình các loại nhắc nhở tự động (nhập chi tiêu hàng ngày, gần vượt ngân sách, giao dịch định kỳ).', flow:'Từ Profile → Thông báo & Nhắc nhở → xem danh sách thông báo → cuộn xuống bật/tắt từng loại nhắc nhở → chọn giờ nhắc hàng ngày.', components:'Notification Card, Toggle switch, Time chip, Text link (Đánh dấu đã đọc).', states:'Chấm xanh đánh dấu thông báo chưa đọc; card đã đọc mờ hơn.', notes:'Cần Push Notification service (FCM) ở backend + bảng cấu hình nhắc nhở theo user để hiện thực hoá.'},
+    savingsGoalForm: {num:'4c', title:'Create/Edit Savings Goal', purpose:'Thiết lập tên, số tiền mục tiêu, hạn hoàn thành và số tiền đã tiết kiệm.', flow:'Từ màn Savings Goal, bấm + → điền thông tin → Lưu → quay về Savings Goal.'},
     savingsGoal: {num:'4b', title:'Savings Goal Detail/History', purpose:'Xem chi tiết tiến độ một mục tiêu tiết kiệm và lịch sử các lần đóng góp.', flow:'Từ Dashboard → chạm card Mục tiêu tiết kiệm → xem % hoàn thành, hạn mục tiêu, TB/tháng → cuộn xem lịch sử đóng góp.', components:'Statistic Card (gradient, dùng lại style Tiết kiệm tháng này), Progress Bar lớn, Statistic Card mini x2, Transaction Item (biến thể đóng góp).', states:'Không có Empty (luôn có ít nhất mục tiêu mặc định); Loading dùng skeleton list cho lịch sử.', notes:'Progress Bar và số % đồng bộ với card tóm tắt ở Dashboard.'},
     history: {num:11, title:'Transaction History', purpose:'Tra cứu toàn bộ giao dịch với tìm kiếm & lọc chi tiết.', flow:'Gõ từ khoá hoặc mở bộ lọc (Ngày / Danh mục / Khoảng tiền / Loại) → danh sách cập nhật → vuốt item để Sửa/Xoá.', components:'Search Bar, Filter chips panel, Transaction Item (dùng chung Dashboard).', states:'Empty state riêng cho "không có kết quả tìm kiếm" (khác empty state Dashboard). Loading dùng skeleton list.', notes:'Filter panel expand/collapse 200ms. Trong bản Flutter, item hỗ trợ swipe-to-reveal Edit/Delete thật; ở đây minh hoạ bằng icon tĩnh.'},
     profile: {num:12, title:'Profile', purpose:'Trung tâm quản lý tài khoản & tuỳ chọn cá nhân.', flow:'Xem thông tin → bật/tắt Dark mode ngay tại đây → vào Budget / Income / Settings / Đăng xuất.', components:'Avatar, Profile Menu item, Toggle switch, Secondary Button (Đăng xuất).', states:'Không có Empty; Loading chỉ ở avatar khi đang tải ảnh (skeleton tròn).', notes:'Toggle Dark mode ở đây đổi theme tức thì toàn app — cùng cơ chế với toggle ở sidebar prototype này.'},
@@ -1852,6 +1888,21 @@ class Component extends DCLogic {
   };
   goDashboard = () => this.setState({screen:'dashboard'});
   goSavingsGoal = () => this.setState({screen:'savingsGoal'});
+  goSavingsGoalForm = () => this.setState({screen:'savingsGoalForm',
+    savingsGoalFormName:'Mục tiêu tiết kiệm 2026', savingsGoalFormTarget:String(this.savingsGoalData.target),
+    savingsGoalFormDeadline:this.savingsGoalData.deadline, savingsGoalFormCurrent:String(this.savingsGoalData.current)});
+  onSavingsGoalFormNameInput = (e) => this.setState({savingsGoalFormName:e.target.value});
+  onSavingsGoalFormTargetInput = (e) => this.setState({savingsGoalFormTarget:(e.target.value||'').replace(/[^0-9]/g,'')});
+  onSavingsGoalFormDeadlineInput = (e) => this.setState({savingsGoalFormDeadline:e.target.value});
+  onSavingsGoalFormCurrentInput = (e) => this.setState({savingsGoalFormCurrent:(e.target.value||'').replace(/[^0-9]/g,'')});
+  saveSavingsGoalForm = () => {
+    this.savingsGoalData = {
+      target: parseInt(this.state.savingsGoalFormTarget||'0',10) || this.savingsGoalData.target,
+      current: parseInt(this.state.savingsGoalFormCurrent||'0',10) || 0,
+      deadline: this.state.savingsGoalFormDeadline || this.savingsGoalData.deadline,
+    };
+    this.setState({screen:'savingsGoal'});
+  };
   goLogin = () => this.setState({screen:'login'});
   goRegister = () => this.setState({screen:'register'});
   goCalendar = () => this.setState({screen:'calendar'});
@@ -2392,6 +2443,7 @@ class Component extends DCLogic {
       {num:3,label:'Register',key:'register',icon:screenIcons.register,go:this.goRegister},
       {num:4,label:'Dashboard',key:'dashboard',icon:screenIcons.dashboard,go:this.goDashboard},
       {num:'4b',label:'Savings Goal',key:'savingsGoal',icon:'flag',go:this.goSavingsGoal},
+      {num:'4c',label:'Create/Edit Savings Goal',key:'savingsGoalForm',icon:'add_circle',go:this.goSavingsGoalForm},
       {num:5,label:'Add Expense',key:'addTx',icon:screenIcons.addTxE,go:()=>this.goAddTx('expense')},
       {num:6,label:'Add Income',key:'addTx',icon:screenIcons.addTxI,go:()=>this.goAddTx('income')},
       {num:7,label:'Calendar',key:'calendar',icon:screenIcons.calendar,go:this.goCalendar},
@@ -2515,7 +2567,13 @@ class Component extends DCLogic {
         label:t, select:this.selectReminderTime(t),
         style:`padding:6px 12px;border-radius:10px;border:1.5px solid ${this.state.reminderSettings.dailyTime===t?c.primary:c.border};background:${this.state.reminderSettings.dailyTime===t?c.primaryLight:c.surface};color:${this.state.reminderSettings.dailyTime===t?c.primary:c.textSec};font-size:12px;font-weight:700;cursor:pointer;`,
       })),
-      isSavingsGoal: screen==='savingsGoal', goSavingsGoal:this.goSavingsGoal,
+      isSavingsGoal: screen==='savingsGoal', goSavingsGoal:this.goSavingsGoal, goSavingsGoalForm:this.goSavingsGoalForm,
+      isSavingsGoalForm: screen==='savingsGoalForm',
+      savingsGoalFormName: s.savingsGoalFormName||'', onSavingsGoalFormNameInput:this.onSavingsGoalFormNameInput,
+      savingsGoalFormTarget: s.savingsGoalFormTarget||'', onSavingsGoalFormTargetInput:this.onSavingsGoalFormTargetInput,
+      savingsGoalFormDeadline: s.savingsGoalFormDeadline||'', onSavingsGoalFormDeadlineInput:this.onSavingsGoalFormDeadlineInput,
+      savingsGoalFormCurrent: s.savingsGoalFormCurrent||'', onSavingsGoalFormCurrentInput:this.onSavingsGoalFormCurrentInput,
+      saveSavingsGoalForm:this.saveSavingsGoalForm,
       savingsGoalCurrentStr: this.fmt(this.savingsGoalData.current)+' ₫',
       savingsGoalTargetStr: this.fmt(this.savingsGoalData.target)+' ₫',
       savingsGoalPct: Math.round(this.savingsGoalData.current/this.savingsGoalData.target*100),

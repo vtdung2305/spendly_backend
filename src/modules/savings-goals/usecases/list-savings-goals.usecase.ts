@@ -15,8 +15,23 @@ export class ListSavingsGoalsUseCase {
     return Promise.all(
       goals.map(async (goal) => {
         const targetAmount = Number(goal.targetAmount);
-        const { currentAmount, percent } = await this.progress.computeProgress(userId, goal.year, targetAmount);
-        return { id: goal.id, year: goal.year, targetAmount, currentAmount, percent };
+        const initialAmount = Number(goal.initialAmount);
+        const { currentAmount, percent } = await this.progress.computeProgress(
+          userId,
+          goal.createdAt,
+          goal.deadline,
+          targetAmount,
+          initialAmount,
+        );
+        return {
+          id: goal.id,
+          name: goal.name,
+          targetAmount,
+          initialAmount,
+          deadline: goal.deadline,
+          currentAmount,
+          percent,
+        };
       }),
     );
   }

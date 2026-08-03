@@ -1,9 +1,4 @@
-import { IsNumber, IsPositive } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/swagger';
+import { CreateSavingsGoalDto } from './create-savings-goal.dto';
 
-export class UpdateSavingsGoalDto {
-  @ApiProperty({ minimum: 0.01 })
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsPositive()
-  targetAmount: number;
-}
+export class UpdateSavingsGoalDto extends PartialType(CreateSavingsGoalDto) {}

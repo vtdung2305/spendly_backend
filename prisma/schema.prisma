@@ -186,17 +186,19 @@ model Budget {
 }
 
 model SavingsGoal {
-  id           String    @id @default(uuid())
-  userId       String    @map("user_id")
-  year         Int
-  targetAmount Decimal   @map("target_amount") @db.Decimal(14, 2)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  deletedAt    DateTime? @map("deleted_at")
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  name          String
+  targetAmount  Decimal   @map("target_amount") @db.Decimal(14, 2)
+  deadline      DateTime  @map("deadline") @db.Date
+  initialAmount Decimal   @default(0) @map("initial_amount") @db.Decimal(14, 2)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
 
   user User @relation(fields: [userId], references: [id])
 
-  @@unique([userId, year], map: "uq_savings_goals_user_year")
+  @@index([userId, deadline], map: "idx_savings_goals_user_deadline")
   @@index([deletedAt], map: "idx_savings_goals_soft_delete")
   @@map("savings_goals")
 }

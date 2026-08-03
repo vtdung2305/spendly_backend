@@ -32,7 +32,7 @@ as specified.
 | `categories` | Expense/income category CRUD; deleting a category reassigns its transactions to "Khác" |
 | `transactions` | Income/expense CRUD, daily summary (Calendar), period summary (Reports) |
 | `budgets` | Monthly per-category budget limits, with `spentAmount`/`usedPercent` computed from transactions |
-| `savings-goals` | Yearly savings target; `currentAmount` is computed at read time, never stored |
+| `savings-goals` | Named savings goals with a free deadline and optional starting amount; `currentAmount` is computed at read time from transactions plus the starting amount, never stored |
 | `dashboard` | One aggregated `GET /dashboard/summary` endpoint composing the modules above |
 | `recurring-transactions` | CRUD for recurring expenses/income; daily BullMQ job auto-generates the real Transaction on the configured day of month |
 | `notifications` | In-app notification center + FCM push (optional), reminder settings, device token registration; auto-fires on budget-threshold-crossing, recurring generation, and a daily no-transaction-logged check |

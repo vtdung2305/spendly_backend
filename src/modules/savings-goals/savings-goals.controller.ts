@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CreateSavingsGoalDto } from './dto/create-savings-goal.dto';
@@ -22,48 +22,47 @@ export class SavingsGoalsController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all of the current user\'s savings goals, across every year' })
+  @ApiOperation({ summary: 'List all of the current user\'s savings goals' })
   async list(@CurrentUser('id') userId: string) {
     return this.listSavingsGoalsUseCase.execute(userId);
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a new savings goal for a year' })
+  @ApiOperation({ summary: 'Create a new savings goal' })
   @ApiResponse({ status: 201 })
-  @ApiResponse({ status: 409, description: 'SAVINGS_GOAL_ALREADY_EXISTS — a goal for that year already exists' })
   async create(@CurrentUser('id') userId: string, @Body() dto: CreateSavingsGoalDto) {
     return this.createSavingsGoalUseCase.execute(userId, dto);
   }
 
-  @Get(':year')
-  @ApiParam({ name: 'year', type: Number })
+  @Get(':id')
+  @ApiParam({ name: 'id', type: String })
   @ApiOperation({ summary: 'Get a savings goal detail: progress, deadline, and monthly contribution history' })
   @ApiResponse({ status: 200 })
-  @ApiResponse({ status: 404, description: 'No savings goal exists for that year' })
-  async detail(@Param('year', ParseIntPipe) year: number, @CurrentUser('id') userId: string) {
-    return this.getSavingsGoalDetailUseCase.execute(userId, year);
+  @ApiResponse({ status: 404, description: 'No savings goal exists with that id' })
+  async detail(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('id') userId: string) {
+    return this.getSavingsGoalDetailUseCase.execute(userId, id);
   }
 
-  @Patch(':year')
-  @ApiParam({ name: 'year', type: Number })
-  @ApiOperation({ summary: 'Update the target amount of an existing savings goal' })
+  @Patch(':id')
+  @ApiParam({ name: 'id', type: String })
+  @ApiOperation({ summary: 'Update an existing savings goal' })
   @ApiResponse({ status: 200 })
-  @ApiResponse({ status: 404, description: 'No savings goal exists for that year' })
+  @ApiResponse({ status: 404, description: 'No savings goal exists with that id' })
   async update(
-    @Param('year', ParseIntPipe) year: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser('id') userId: string,
     @Body() dto: UpdateSavingsGoalDto,
   ) {
-    return this.updateSavingsGoalUseCase.execute(userId, year, dto);
+    return this.updateSavingsGoalUseCase.execute(userId, id, dto);
   }
 
-  @Delete(':year')
-  @ApiParam({ name: 'year', type: Number })
+  @Delete(':id')
+  @ApiParam({ name: 'id', type: String })
   @ApiOperation({ summary: 'Delete a savings goal' })
   @ApiResponse({ status: 200 })
-  @ApiResponse({ status: 404, description: 'No savings goal exists for that year' })
-  async delete(@Param('year', ParseIntPipe) year: number, @CurrentUser('id') userId: string) {
-    await this.deleteSavingsGoalUseCase.execute(userId, year);
+  @ApiResponse({ status: 404, description: 'No savings goal exists with that id' })
+  async delete(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('id') userId: string) {
+    await this.deleteSavingsGoalUseCase.execute(userId, id);
     return { deleted: true };
   }
 }

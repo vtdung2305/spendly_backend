@@ -6,39 +6,39 @@ describe('CreateSavingsGoalUseCase', () => {
   let repo: jest.Mocked<SavingsGoalsRepository>;
 
   beforeEach(() => {
-    repo = { findAnyByYear: jest.fn(), create: jest.fn(), revive: jest.fn() } as any;
+    repo = { create: jest.fn() } as any;
     useCase = new CreateSavingsGoalUseCase(repo);
   });
 
-  it('throws SAVINGS_GOAL_ALREADY_EXISTS when an active goal for that year already exists', async () => {
-    repo.findAnyByYear.mockResolvedValue({ id: 'existing', deletedAt: null } as any);
-
-    await expect(useCase.execute('user-1', { year: 2026, targetAmount: 300000000 })).rejects.toMatchObject({
-      code: 'SAVINGS_GOAL_ALREADY_EXISTS',
-    });
-    expect(repo.create).not.toHaveBeenCalled();
-    expect(repo.revive).not.toHaveBeenCalled();
-  });
-
-  it('creates the goal when no goal has ever existed for that year', async () => {
-    repo.findAnyByYear.mockResolvedValue(null);
+  it('creates a goal with the given name, target, deadline and initial amount', async () => {
     repo.create.mockResolvedValue({ id: 'new-goal' } as any);
 
-    const result = await useCase.execute('user-1', { year: 2027, targetAmount: 500000000 });
+    const result = await useCase.execute('user-1', {
+      name: 'Mục tiêu tiết kiệm 2026',
+      targetAmount: 500000000,
+      deadline: '2026-12-31',
+      initialAmount: 1000000,
+    });
 
-    expect(repo.create).toHaveBeenCalledWith('user-1', 2027, 500000000);
-    expect(repo.revive).not.toHaveBeenCalled();
+    expect(repo.create).toHaveBeenCalledWith('user-1', {
+      name: 'Mục tiêu tiết kiệm 2026',
+      targetAmount: 500000000,
+      deadline: new Date('2026-12-31'),
+      initialAmount: 1000000,
+    });
     expect(result).toEqual({ id: 'new-goal' });
   });
 
-  it('revives a previously soft-deleted goal instead of inserting (avoids a unique-constraint violation)', async () => {
-    repo.findAnyByYear.mockResolvedValue({ id: 'old-goal', deletedAt: new Date('2026-01-01') } as any);
-    repo.revive.mockResolvedValue({ id: 'old-goal', deletedAt: null, targetAmount: 999 } as any);
+  it('allows multiple goals to be created (no year uniqueness constraint)', async () => {
+    repo.create.mockResolvedValue({ id: 'goal-2' } as any);
 
-    const result = await useCase.execute('user-1', { year: 2027, targetAmount: 999 });
+    await useCase.execute('user-1', { name: 'Xe máy mới', targetAmount: 50000000, deadline: '2027-06-30' });
 
-    expect(repo.revive).toHaveBeenCalledWith('old-goal', 999);
-    expect(repo.create).not.toHaveBeenCalled();
-    expect(result).toEqual({ id: 'old-goal', deletedAt: null, targetAmount: 999 });
+    expect(repo.create).toHaveBeenCalledWith('user-1', {
+      name: 'Xe máy mới',
+      targetAmount: 50000000,
+      deadline: new Date('2027-06-30'),
+      initialAmount: undefined,
+    });
   });
 });
