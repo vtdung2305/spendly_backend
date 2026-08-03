@@ -8,10 +8,9 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
-  throw new Error('MAIN_TS_DEBUG');
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
-
+  console.log('0');
   app.use(helmet());
   app.enableCors({
     origin: config.get<string[]>('cors.allowedOrigins'),
@@ -19,6 +18,8 @@ async function bootstrap() {
     credentials: true,
     maxAge: 86400,
   });
+
+  console.log('1');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -28,6 +29,7 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: false },
     }),
   );
+  console.log('2');
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
 
@@ -40,7 +42,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
+  console.log('3');
+
   const port = config.get<number>('port') ?? 3000;
   await app.listen(port, '0.0.0.0');
+
+  console.log('4');
 }
 bootstrap();
