@@ -8,6 +8,7 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
+  throw new Error('MAIN_TS_DEBUG');
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
