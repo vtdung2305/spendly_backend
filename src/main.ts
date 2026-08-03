@@ -44,7 +44,15 @@ async function bootstrap() {
 
   console.log('3');
 
+  // const port = config.get<number>('port') ?? 3000;
+  // await app.listen(port, '0.0.0.0');
+
   const port = config.get<number>('port') ?? 3000;
+
+  console.log('PORT =', port);
+  console.log('ENV PORT =', process.env.PORT);
+  console.log(typeof port);
+
   await app.listen(port, '0.0.0.0');
 
   console.log('4');
