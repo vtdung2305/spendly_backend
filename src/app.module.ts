@@ -31,7 +31,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     SavingsGoalsModule,
     DashboardModule,
     RecurringTransactionsModule,
-    NotificationsModule,
+    // NotificationsModule,
   ],
 })
 export class AppModule {}
