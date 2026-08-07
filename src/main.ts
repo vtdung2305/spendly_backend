@@ -33,19 +33,21 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Spendly API')
-    .setDescription('Personal finance app backend API')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  console.log('before swagger');
+  if (config.get<string>('env') !== 'production') {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Spendly API')
+      .setDescription('Personal finance app backend API')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    console.log('before swagger');
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
 
-  console.log('after createDocument');
+    console.log('after createDocument');
 
-  SwaggerModule.setup('docs', app, document);
+    SwaggerModule.setup('docs', app, document);
+  }
 
   const port = config.get<number>('port') ?? 3000;
 
