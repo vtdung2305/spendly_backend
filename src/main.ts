@@ -39,23 +39,22 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
+  console.log('before swagger');
+
   const document = SwaggerModule.createDocument(app, swaggerConfig);
+
+  console.log('after createDocument');
+
   SwaggerModule.setup('docs', app, document);
 
-  console.log('3');
+  const port = config.get<number>('port') ?? 3000;
 
-  // const port = config.get<number>('port') ?? 3000;
-  // await app.listen(port, '0.0.0.0');
-
-  // const port = config.get<number>('port') ?? 3000;
-  const port = Number(process.env.PORT) || 3000;
+  console.log('after setup');
 
   console.log('PORT =', port);
-  console.log('ENV PORT =', process.env.PORT);
-  console.log(typeof port);
 
   await app.listen(port, '0.0.0.0');
 
-  console.log('4');
+  console.log('listen ok');
 }
 bootstrap();
