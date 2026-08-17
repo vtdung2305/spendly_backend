@@ -58,15 +58,31 @@ export class TransactionsRepository {
             },
           }
         : {}),
-      ...(params.search ? { note: { contains: params.search, mode: 'insensitive' } } : {}),
     };
+
+    const andFilters: Prisma.TransactionWhereInput[] = [];
+
+    if (params.search) {
+      andFilters.push({
+        OR: [
+          { note: { contains: params.search, mode: 'insensitive' } },
+          { category: { name: { contains: params.search, mode: 'insensitive' } } },
+        ],
+      });
+    }
 
     if (params.cursor) {
       const { id, v } = decodeCursor(params.cursor);
-      where.OR = [
-        { occurredAt: { lt: new Date(v) } },
-        { occurredAt: new Date(v), id: { lt: id } },
-      ];
+      andFilters.push({
+        OR: [
+          { occurredAt: { lt: new Date(v) } },
+          { occurredAt: new Date(v), id: { lt: id } },
+        ],
+      });
+    }
+
+    if (andFilters.length > 0) {
+      where.AND = andFilters;
     }
 
     const rows = await this.prisma.transaction.findMany({

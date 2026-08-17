@@ -5,8 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
-      - "9229:9229"
+      - "3001:3000"
+      - "9230:9229"
     volumes:
       - .:/app
       - /app/node_modules
@@ -23,7 +23,7 @@ services:
   db:
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_DB: spendly_dev
       POSTGRES_USER: spendly
@@ -41,7 +41,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis-data:/data
     healthcheck:

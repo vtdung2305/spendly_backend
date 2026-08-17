@@ -60,8 +60,8 @@ docker compose exec api npx prisma migrate dev --name init
 docker compose exec api npm run prisma:seed
 ```
 
-API docs (Swagger): http://localhost:3000/docs
-Health check: http://localhost:3000/health
+API docs (Swagger): http://localhost:3001/docs
+Health check: http://localhost:3001/health
 
 Demo login after seeding: `demo@spendly.app` / `Passw0rd!`
 
