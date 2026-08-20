@@ -39,11 +39,7 @@ export default () => ({
     maxAvatarSize: parseInt(process.env.MAX_AVATAR_SIZE ?? '5242880', 10),
   },
   mail: {
-    smtpHost: process.env.SMTP_HOST,
-    smtpPort: parseInt(process.env.SMTP_PORT ?? '587', 10),
-    smtpSecure: process.env.SMTP_SECURE === 'true',
-    smtpUser: process.env.SMTP_USER || undefined,
-    smtpPass: process.env.SMTP_PASS || undefined,
+    resendApiKey: process.env.RESEND_API_KEY,
     from: process.env.MAIL_FROM ?? 'Spendly <no-reply@spendly.app>',
     resetPasswordUrl: process.env.APP_RESET_PASSWORD_URL ?? 'http://localhost:8081/reset-password',
   },

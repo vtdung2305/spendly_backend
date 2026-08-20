@@ -213,6 +213,13 @@ Response `data`: giống `GET /users/me` sau update.
 
 ## 4. Files — `/api/v1/files` (yêu cầu JWT)
 
+`POST /files/upload` là **API upload ảnh dùng chung cho toàn bộ hệ thống** — bất kỳ tính năng
+nào cần upload ảnh (avatar, và các tính năng đính kèm ảnh khác trong tương lai) đều gọi cùng
+một endpoint này để lấy về `url`, sau đó tự gán `url` đó vào field tương ứng của resource cần
+thiết qua API `PATCH`/`POST` của module đó. **Endpoint này không tự lưu ảnh vào bất kỳ entity
+nghiệp vụ nào (transaction, category, savings goal...) — nó chỉ upload file lên storage và trả
+về URL.**
+
 ### `POST /files/upload`
 
 Giới hạn 10 lần/phút. `multipart/form-data`, field `file` (binary), giới hạn cứng **5MB**,
@@ -222,8 +229,26 @@ Response `data`: `{ id, url, mimeType, size }`
 
 Lỗi: `FILE_REQUIRED` (400), `INVALID_FILE_TYPE` (400), `FILE_TOO_LARGE` (400).
 
-⚠️ Endpoint này chỉ upload và trả URL — **không** tự gán vào profile. Client phải gọi
-`PATCH /users/me` với `avatarUrl` trả về để cập nhật avatar.
+**Flow chuẩn cho FE/App (áp dụng cho mọi tính năng upload ảnh):**
+1. Gọi `POST /files/upload` với file ảnh → nhận `url` trong response.
+2. Gọi API `PATCH`/`POST` của resource cần gắn ảnh, truyền `url` vừa nhận vào field tương ứng.
+
+Ví dụ hiện tại (avatar người dùng):
+```
+POST /files/upload  → { id, url, mimeType, size }
+PATCH /users/me { avatarUrl: "<url>" }  → cập nhật avatar vào profile
+```
+
+⚠️ Lưu ý hiện tại: use case upload đang lưu ảnh theo `folder: "<uploadFolder>/<userId>"` và
+`overwrite: true` (Cloudinary) — nghĩa là **mỗi user chỉ giữ được 1 ảnh do endpoint này ghi đè**
+lần upload trước đó của cùng user. Điều này phù hợp với avatar (1 ảnh/user). Nếu về sau có thêm
+tính năng upload ảnh khác cần giữ nhiều ảnh cùng lúc cho 1 user (ví dụ hoá đơn giao dịch, ảnh bìa
+mục tiêu tiết kiệm...), backend cần được cập nhật để không overwrite theo `userId` nữa — FE/App
+không cần biết trước điều này, nhưng nếu thấy ảnh cũ bị mất khi upload ảnh mới cho mục đích khác
+avatar thì đây là nguyên nhân, cần báo lại để backend tổng quát hoá endpoint.
+
+Hiện tại, `User.avatarUrl` là field ảnh nghiệp vụ **duy nhất** trong hệ thống dùng endpoint này;
+chưa có transaction/category/savings-goal/budget/recurring-transaction nào có field ảnh riêng.
 
 ---
 

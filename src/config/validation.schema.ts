@@ -29,11 +29,7 @@ export const validationSchema = Joi.object({
   THROTTLE_LIMIT: Joi.number().default(100),
   MAX_AVATAR_SIZE: Joi.number().default(5242880),
 
-  SMTP_HOST: Joi.string().required(),
-  SMTP_PORT: Joi.number().default(587),
-  SMTP_SECURE: Joi.boolean().default(false),
-  SMTP_USER: Joi.string().allow('').optional(),
-  SMTP_PASS: Joi.string().allow('').optional(),
+  RESEND_API_KEY: Joi.string().required(),
   MAIL_FROM: Joi.string().default('Spendly <no-reply@spendly.app>'),
   APP_RESET_PASSWORD_URL: Joi.string().default('http://localhost:8081/reset-password'),
 
